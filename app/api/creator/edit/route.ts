@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { creatorErrorResponse, requireCreatorDatabase } from "@/lib/creator-api";
+import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
-import { nextArtifactVersion } from "@/lib/creator-db";
+import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
 
 type Input = {
   projectId?: string;
@@ -39,10 +39,18 @@ export async function POST(request: Request) {
   if (unavailable) return unavailable;
 
   try {
+    const auth = await requireCreatorUser(request);
+    if (auth.response) return auth.response;
+
     const body = (await request.json()) as Input;
 
     if (!body.projectId || !body.instruction || body.instruction.trim().length < 4) {
       return NextResponse.json({ error: "projectId and instruction are required" }, { status: 400 });
+    }
+
+    const ownedProject = await requireOwnedProject(body.projectId, auth.user.id);
+    if (!ownedProject) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     const sourceArtifact = body.artifactId
@@ -51,6 +59,10 @@ export async function POST(request: Request) {
 
     if (!sourceArtifact) {
       return NextResponse.json({ error: "No source artifact found" }, { status: 404 });
+    }
+
+    if (sourceArtifact.projectId !== body.projectId) {
+      return NextResponse.json({ error: "Artifact does not belong to project" }, { status: 400 });
     }
 
     const mode: "web" | "docs" = body.mode || (sourceArtifact.type === "document" ? "docs" : "web");

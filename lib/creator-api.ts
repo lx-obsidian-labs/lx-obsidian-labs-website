@@ -1,5 +1,7 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type User } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { readSessionFromRequest } from "@/lib/auth-session";
+import { prisma } from "@/lib/prisma";
 
 export function requireCreatorDatabase() {
   if (!process.env.DATABASE_URL) {
@@ -28,4 +30,24 @@ export function creatorErrorResponse(error: unknown, fallbackMessage: string) {
   }
 
   return NextResponse.json({ error: fallbackMessage }, { status: 500 });
+}
+
+export async function requireCreatorUser(request: Request): Promise<{ user: User; response: null } | { user: null; response: NextResponse }> {
+  const session = readSessionFromRequest(request);
+  if (!session) {
+    return {
+      user: null,
+      response: NextResponse.json({ error: "Unauthorized. Please sign in at /auth." }, { status: 401 }),
+    };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: session.email } });
+  if (!user) {
+    return {
+      user: null,
+      response: NextResponse.json({ error: "Session expired. Please sign in again." }, { status: 401 }),
+    };
+  }
+
+  return { user, response: null };
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { creatorErrorResponse, requireCreatorDatabase } from "@/lib/creator-api";
+import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
+import { requireOwnedProject } from "@/lib/creator-db";
 import { prisma } from "@/lib/prisma";
 
 type Params = { params: Promise<{ id: string }> };
@@ -9,7 +10,15 @@ export async function GET(_: Request, { params }: Params) {
   if (unavailable) return unavailable;
 
   try {
+    const auth = await requireCreatorUser(_);
+    if (auth.response) return auth.response;
+
     const { id } = await params;
+    const owned = await requireOwnedProject(id, auth.user.id);
+    if (!owned) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
@@ -33,7 +42,15 @@ export async function PATCH(request: Request, { params }: Params) {
   if (unavailable) return unavailable;
 
   try {
+    const auth = await requireCreatorUser(request);
+    if (auth.response) return auth.response;
+
     const { id } = await params;
+    const owned = await requireOwnedProject(id, auth.user.id);
+    if (!owned) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     const body = (await request.json()) as { title?: string; description?: string; status?: string };
 
     const updated = await prisma.project.update({

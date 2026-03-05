@@ -1,18 +1,5 @@
 import { prisma } from "@/lib/prisma";
 
-export const DEMO_USER_EMAIL = "demo@lxobsidianlabs.local";
-
-export async function ensureDemoUser() {
-  return prisma.user.upsert({
-    where: { email: DEMO_USER_EMAIL },
-    update: {},
-    create: {
-      email: DEMO_USER_EMAIL,
-      name: "Obsidian Creator Demo",
-    },
-  });
-}
-
 export async function nextArtifactVersion(projectId: string) {
   const lastArtifact = await prisma.artifact.findFirst({
     where: { projectId },
@@ -20,4 +7,10 @@ export async function nextArtifactVersion(projectId: string) {
   });
 
   return (lastArtifact?.version || 0) + 1;
+}
+
+export async function requireOwnedProject(projectId: string, userId: string) {
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project || project.userId !== userId) return null;
+  return project;
 }

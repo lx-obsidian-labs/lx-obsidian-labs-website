@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { creatorErrorResponse, requireCreatorDatabase } from "@/lib/creator-api";
+import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
-import { ensureDemoUser, nextArtifactVersion } from "@/lib/creator-db";
+import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
 
 type Input = {
   projectId?: string;
@@ -32,6 +32,9 @@ export async function POST(request: Request) {
   if (unavailable) return unavailable;
 
   try {
+    const auth = await requireCreatorUser(request);
+    if (auth.response) return auth.response;
+
     const body = (await request.json()) as Input;
 
     if (!body.documentType || !body.companyName) {
@@ -83,18 +86,26 @@ Return strict JSON with keys: title (string), outline (string[]), contentMarkdow
       }
     }
 
-    const user = await ensureDemoUser();
-
     const project = body.projectId
-      ? await prisma.project.update({ where: { id: body.projectId }, data: { updatedAt: new Date() } })
+      ? await (async () => {
+          const owned = await requireOwnedProject(body.projectId!, auth.user.id);
+          if (!owned) {
+            return null;
+          }
+          return prisma.project.update({ where: { id: body.projectId }, data: { updatedAt: new Date() } });
+        })()
       : await prisma.project.create({
           data: {
-            userId: user.id,
+            userId: auth.user.id,
             type: "docs",
             title: output.title,
             description: `Generated ${body.documentType} for ${body.companyName}`,
           },
         });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
 
     const version = await nextArtifactVersion(project.id);
 

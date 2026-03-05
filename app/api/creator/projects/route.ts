@@ -1,20 +1,21 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { creatorErrorResponse, requireCreatorDatabase } from "@/lib/creator-api";
+import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
-import { ensureDemoUser } from "@/lib/creator-db";
 
 function toProjectType(value: string | undefined) {
   if (value === "web" || value === "docs" || value === "image" || value === "consult") return value;
   return "consult";
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const unavailable = requireCreatorDatabase();
   if (unavailable) return unavailable;
 
   try {
-    const user = await ensureDemoUser();
+    const auth = await requireCreatorUser(request);
+    if (auth.response) return auth.response;
+    const user = auth.user;
     const projects = await prisma.project.findMany({
       where: { userId: user.id },
       include: {
@@ -38,6 +39,10 @@ export async function POST(request: Request) {
   if (unavailable) return unavailable;
 
   try {
+    const auth = await requireCreatorUser(request);
+    if (auth.response) return auth.response;
+    const user = auth.user;
+
     const body = (await request.json()) as {
       title?: string;
       type?: string;
@@ -48,8 +53,6 @@ export async function POST(request: Request) {
     if (!body.title || body.title.trim().length < 2) {
       return NextResponse.json({ error: "Project title is required" }, { status: 400 });
     }
-
-    const user = await ensureDemoUser();
 
     const created = await prisma.project.create({
       data: {

@@ -44,6 +44,7 @@ UPSTASH_REDIS_REST_TOKEN=
 NEXT_PUBLIC_GA_ID=
 NEXT_PUBLIC_SITE_URL=https://lxobsidianlabs.vercel.app
 DATABASE_URL=
+AUTH_SECRET=
 ```
 
 - `RESEND_API_KEY` + `LEAD_TO_EMAIL`: email notifications for new leads
@@ -54,6 +55,7 @@ DATABASE_URL=
 - `NEXT_PUBLIC_GA_ID`: GA4 measurement id for analytics event tracking bootstrap
 - `NEXT_PUBLIC_SITE_URL`: canonical base URL used for metadata, sitemap, and robots
 - `DATABASE_URL`: PostgreSQL connection string for Creator persistence (Neon compatible)
+- `AUTH_SECRET`: secret key used to sign Creator auth sessions
 
 ### Prisma setup
 
