@@ -15,7 +15,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-white/92 shadow-[0_6px_22px_-18px_rgba(15,23,42,0.45)] backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
         <Link href="/" className="text-base font-extrabold tracking-wide text-[#111111]" aria-label="LX Obsidian Labs Home">
           LX <span className="text-accent">Obsidian</span> Labs
@@ -32,14 +32,18 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-accent",
+                  "relative text-sm font-medium transition-colors hover:text-accent",
                   active ? "text-accent" : "text-[#111111]",
                 )}
               >
                 {link.label}
+                {active ? <span className="absolute -bottom-2 left-0 h-[2px] w-full rounded-full bg-accent" /> : null}
               </Link>
             );
           })}
+          <Link href="/creator" className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-semibold text-[#111111] hover:border-accent hover:text-accent">
+            Obsidian Creator
+          </Link>
           <Button asChild size="default">
             <Link href="/contact">Start Your Project</Link>
           </Button>

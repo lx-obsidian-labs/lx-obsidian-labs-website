@@ -114,7 +114,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <Navbar />
-        <main>{children}</main>
+        <main className="relative min-h-[60vh]">{children}</main>
         <Footer />
         <FloatingActions />
       </body>

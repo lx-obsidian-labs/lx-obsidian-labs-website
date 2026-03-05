@@ -6,7 +6,7 @@ const year = new Date().getFullYear();
 export function Footer() {
   return (
     <footer className="border-t bg-[#0a0a0a] py-12 text-white">
-      <Container className="grid gap-8 md:grid-cols-3">
+      <Container className="grid gap-8 lg:grid-cols-4">
         <div>
           <p className="text-lg font-bold">LX Obsidian Labs</p>
           <p className="mt-3 max-w-sm text-sm text-zinc-300">
@@ -15,6 +15,14 @@ export function Footer() {
           <p className="mt-2 max-w-sm text-sm text-zinc-400">
             Strategic roadmap: transition toward applied robotics by 2028 as resources and research capacity expand.
           </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/contact" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
+              Start Project Brief
+            </Link>
+            <Link href="/creator" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
+              Open Creator
+            </Link>
+          </div>
         </div>
 
         <div>
@@ -64,6 +72,37 @@ export function Footer() {
         </div>
 
         <div>
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-200">Start Here</p>
+          <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+            <li>
+              <Link className="hover:text-accent" href="/contact#start-form">
+                New client project
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-accent" href="/services/design-order">
+                Design fast track
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-accent" href="/creator/web">
+                Build a website
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-accent" href="/creator/docs">
+                Generate a document
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-accent" href="/creator/projects">
+                Continue projects
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-200">Contact</p>
           <ul className="mt-3 space-y-2 text-sm text-zinc-300">
             <li>
@@ -76,6 +115,12 @@ export function Footer() {
                 vilanenathan@gmail.com
               </a>
             </li>
+            <li>
+              <a className="hover:text-accent" href="https://wa.me/27762982399" target="_blank" rel="noreferrer">
+                WhatsApp support
+              </a>
+            </li>
+            <li className="pt-2 text-xs text-zinc-400">Typical response: within 24 hours</li>
           </ul>
         </div>
       </Container>

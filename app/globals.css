@@ -3,11 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #111111;
-  --surface: #f8fafc;
+  --surface: #f4f7fb;
   --muted: #4b5563;
   --accent: #e11d48;
   --accent-foreground: #ffffff;
-  --border: #e5e7eb;
+  --border: #dbe3ee;
 }
 
 @theme inline {
@@ -22,13 +22,47 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 15% -10%, #ffe5ec 0%, transparent 35%),
+    radial-gradient(circle at 90% 0%, #e7eefc 0%, transparent 30%),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-manrope), sans-serif;
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
 }
 
 * {
   border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: #fecdd3;
+  color: #111111;
+}
+
+a {
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+input,
+select,
+textarea {
+  background: #ffffff;
+  border-color: var(--border);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #e11d48;
+  outline-offset: 2px;
 }
 
 .text-balance {
