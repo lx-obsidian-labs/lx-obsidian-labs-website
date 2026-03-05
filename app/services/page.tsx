@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Section } from "@/components/layout/section";
 import { ServiceCard } from "@/components/cards/service-card";
 import { CostEstimator } from "@/components/interactive/cost-estimator";
 import { ServicePackages } from "@/components/sections/service-packages";
+import { Button } from "@/components/ui/button";
 import { industrySolutions, services } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -40,6 +42,19 @@ export default function ServicesPage() {
       </Section>
 
       <Section className="bg-white">
+        <div className="mb-8 rounded-xl border bg-surface p-5 md:p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">New: Design Fast Track</p>
+          <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <p className="max-w-2xl text-sm text-[#111111]">
+              Need brand or design deliverables fast? Use our AI-assisted Graphic Design Order page to place your request without the usual back and
+              forth.
+            </p>
+            <Button asChild className="w-full md:w-auto">
+              <Link href="/services/design-order">Start Design Order</Link>
+            </Button>
+          </div>
+        </div>
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
             <ServiceCard key={service.title} {...service} />
