@@ -38,6 +38,17 @@ export default function CreatorPage() {
             </article>
           ))}
         </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link href="/creator/projects" className="text-sm font-semibold text-accent hover:underline">
+            Open Projects
+          </Link>
+          <Link href="/creator/billing" className="text-sm font-semibold text-accent hover:underline">
+            View Billing
+          </Link>
+          <Link href="/auth" className="text-sm font-semibold text-accent hover:underline">
+            Login / Register
+          </Link>
+        </div>
       </Section>
 
       <Section className="bg-surface pt-0">
