@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { createProjectId, upsertCreatorProject } from "@/lib/creator-store";
 
 type Plan = {
   projectName?: string;
   sitemap?: string[];
   sectionsByPage?: Record<string, string[]>;
   components?: string[];
+  metadata?: { title?: string; description?: string };
+  codeDraft?: Record<string, string>;
 };
 
 export function WebStudio() {
@@ -25,27 +26,20 @@ export function WebStudio() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/creator/web/plan", {
+      const res = await fetch("/api/creator/web/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, industry, style, pages: ["home", "services", "about", "contact"], primaryCta: "Start Your Project" }),
       });
-      const data = (await res.json().catch(() => null)) as Plan | { error?: string } | null;
-      if (!res.ok || !data || ("error" in data && typeof data.error === "string")) {
-        throw new Error((data as { error?: string } | null)?.error || "Plan generation failed");
+      const data = (await res.json().catch(() => null)) as
+        | { output?: Plan; projectId?: string; error?: string }
+        | null;
+      if (!res.ok || !data || data.error || !data.output) {
+        throw new Error(data?.error || "Plan generation failed");
       }
-      const planData = data as Plan;
-      const id = createProjectId();
-      setProjectId(id);
+      const planData = data.output;
       setPlan(planData);
-      upsertCreatorProject({
-        id,
-        type: "web",
-        name: planData.projectName || "Untitled Web Project",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        payload: planData,
-      });
+      if (data.projectId) setProjectId(data.projectId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Plan generation failed");
     } finally {
@@ -87,6 +81,15 @@ export function WebStudio() {
           <details className="mt-3 rounded-md border bg-white p-4">
             <summary className="cursor-pointer font-semibold">Components</summary>
             <ul className="mt-2 text-sm text-muted">{(plan.components || []).map((item) => <li key={item}>- {item}</li>)}</ul>
+          </details>
+          <details className="mt-3 rounded-md border bg-white p-4">
+            <summary className="cursor-pointer font-semibold">SEO Metadata</summary>
+            <p className="mt-2 text-sm text-muted">Title: {plan.metadata?.title || "N/A"}</p>
+            <p className="mt-1 text-sm text-muted">Description: {plan.metadata?.description || "N/A"}</p>
+          </details>
+          <details className="mt-3 rounded-md border bg-white p-4">
+            <summary className="cursor-pointer font-semibold">Code Draft</summary>
+            <pre className="mt-2 overflow-auto whitespace-pre-wrap text-xs text-muted">{JSON.stringify(plan.codeDraft || {}, null, 2)}</pre>
           </details>
           {projectId ? (
             <Link href={`/creator/projects/${projectId}`} className="mt-4 inline-block text-sm font-semibold text-accent hover:underline">Open Project Workspace</Link>

@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Bot, FileCode2, FileText, Play, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createProjectId, readCreatorProjects, upsertCreatorProject, type CreatorProject } from "@/lib/creator-store";
 
 type PlanResult = {
   summary: string;
@@ -18,6 +17,13 @@ type ChatMessage = {
   at: string;
 };
 
+type ProjectCard = {
+  id: string;
+  type: string;
+  title: string;
+  updatedAt: string;
+};
+
 export function AgentStudio() {
   const [objective, setObjective] = useState("");
   const [workspaceType, setWorkspaceType] = useState<"web" | "docs" | "consult" | "mixed">("mixed");
@@ -26,7 +32,19 @@ export function AgentStudio() {
   const [completed, setCompleted] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [projects, setProjects] = useState<CreatorProject[]>(() => readCreatorProjects());
+  const [projects, setProjects] = useState<ProjectCard[]>([]);
+
+  useEffect(() => {
+    async function loadProjects() {
+      const res = await fetch("/api/creator/projects", { cache: "no-store" });
+      const data = (await res.json().catch(() => null)) as { projects?: ProjectCard[] } | null;
+      if (res.ok && data?.projects) {
+        setProjects(data.projects);
+      }
+    }
+
+    void loadProjects();
+  }, []);
 
   const progress = useMemo(() => {
     if (!completed.length) return 0;
@@ -76,17 +94,20 @@ export function AgentStudio() {
       const data = (await res.json()) as Record<string, unknown>;
       if (!res.ok) throw new Error("Web plan generation failed");
 
-      const project: CreatorProject = {
-        id: createProjectId(),
-        type: "web",
-        name: String(data.projectName || "Agent Web Project"),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        payload: data,
-      };
+      await fetch("/api/creator/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: String(data.projectName || "Agent Web Project"),
+          type: "web",
+          description: "Created by Obsidian Agent",
+          payload: data,
+        }),
+      });
 
-      upsertCreatorProject(project);
-      setProjects(readCreatorProjects());
+      const refresh = await fetch("/api/creator/projects", { cache: "no-store" });
+      const refreshData = (await refresh.json().catch(() => null)) as { projects?: ProjectCard[] } | null;
+      if (refresh.ok && refreshData?.projects) setProjects(refreshData.projects);
       setMessages((prev) => [...prev, { role: "agent", text: "Web plan generated and saved as project.", at: new Date().toISOString() }]);
     } catch {
       setError("Web execution failed.");
@@ -108,17 +129,20 @@ export function AgentStudio() {
       const data = (await res.json()) as Record<string, unknown>;
       if (!res.ok) throw new Error("Document generation failed");
 
-      const project: CreatorProject = {
-        id: createProjectId(),
-        type: "docs",
-        name: String(data.title || "Agent Document Project"),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        payload: data,
-      };
+      await fetch("/api/creator/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: String(data.title || "Agent Document Project"),
+          type: "docs",
+          description: "Created by Obsidian Agent",
+          payload: data,
+        }),
+      });
 
-      upsertCreatorProject(project);
-      setProjects(readCreatorProjects());
+      const refresh = await fetch("/api/creator/projects", { cache: "no-store" });
+      const refreshData = (await refresh.json().catch(() => null)) as { projects?: ProjectCard[] } | null;
+      if (refresh.ok && refreshData?.projects) setProjects(refreshData.projects);
       setMessages((prev) => [...prev, { role: "agent", text: "Document output generated and saved as project.", at: new Date().toISOString() }]);
     } catch {
       setError("Document execution failed.");
@@ -128,23 +152,29 @@ export function AgentStudio() {
   };
 
   const checkpoint = () => {
-    const project: CreatorProject = {
-      id: createProjectId(),
-      type: "consult",
-      name: "Agent Checkpoint",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      payload: {
-        objective,
-        workspaceType,
-        plan,
-        messages,
-        progress,
-      },
-    };
-    upsertCreatorProject(project);
-    setProjects(readCreatorProjects());
-    setMessages((prev) => [...prev, { role: "agent", text: "Checkpoint saved to Projects.", at: new Date().toISOString() }]);
+    void (async () => {
+      await fetch("/api/creator/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "Agent Checkpoint",
+          type: "consult",
+          description: "Agent checkpoint snapshot",
+          payload: {
+            objective,
+            workspaceType,
+            plan,
+            messages,
+            progress,
+          },
+        }),
+      });
+
+      const refresh = await fetch("/api/creator/projects", { cache: "no-store" });
+      const refreshData = (await refresh.json().catch(() => null)) as { projects?: ProjectCard[] } | null;
+      if (refresh.ok && refreshData?.projects) setProjects(refreshData.projects);
+      setMessages((prev) => [...prev, { role: "agent", text: "Checkpoint saved to Projects.", at: new Date().toISOString() }]);
+    })();
   };
 
   return (
@@ -226,7 +256,7 @@ export function AgentStudio() {
         <div className="space-y-2">
           {projects.slice(0, 6).map((project) => (
             <div key={project.id} className="rounded-md border p-3 text-sm">
-              <p className="font-semibold">{project.name}</p>
+              <p className="font-semibold">{project.title}</p>
               <p className="text-xs text-muted">{project.type} • {new Date(project.updatedAt).toLocaleString()}</p>
               <Link href={`/creator/projects/${project.id}`} className="mt-1 inline-block text-xs font-semibold text-accent hover:underline">
                 Open

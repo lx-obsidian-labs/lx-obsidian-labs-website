@@ -1,0 +1,150 @@
+import { NextResponse } from "next/server";
+import { creatorErrorResponse, requireCreatorDatabase } from "@/lib/creator-api";
+import { prisma } from "@/lib/prisma";
+import { ensureDemoUser, nextArtifactVersion } from "@/lib/creator-db";
+
+type Input = {
+  projectId?: string;
+  prompt?: string;
+  industry?: string;
+  style?: string;
+  pages?: string[];
+  primaryCta?: string;
+};
+
+type WebOutput = {
+  projectName: string;
+  sitemap: string[];
+  sectionsByPage: Record<string, string[]>;
+  components: string[];
+  metadata: { title: string; description: string };
+  codeDraft: Record<string, string>;
+};
+
+function fallback(prompt: string): WebOutput {
+  return {
+    projectName: "Obsidian Generated Website",
+    sitemap: ["/", "/about", "/services", "/contact"],
+    sectionsByPage: {
+      "/": ["Hero", "Services", "Call To Action", "Contact"],
+      "/about": ["Company Story", "Mission", "Roadmap"],
+      "/services": ["Service Grid", "Packages", "FAQ"],
+      "/contact": ["Lead Form", "Contact Channels"],
+    },
+    components: ["Navbar", "Hero", "ServiceCard", "Footer", "ContactForm"],
+    metadata: {
+      title: "Generated Website",
+      description: prompt.slice(0, 150),
+    },
+    codeDraft: {
+      "app/page.tsx": `export default function Page(){return <main><h1>${prompt.replaceAll("`", "")}</h1></main>}`,
+    },
+  };
+}
+
+export async function POST(request: Request) {
+  const unavailable = requireCreatorDatabase();
+  if (unavailable) return unavailable;
+
+  try {
+    const body = (await request.json()) as Input;
+    const prompt = (body.prompt || "").trim();
+
+    if (prompt.length < 8) {
+      return NextResponse.json({ error: "Please provide a clear website prompt." }, { status: 400 });
+    }
+
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    const model = process.env.OPENROUTER_MODEL_CODE || process.env.OPENROUTER_MODEL || "qwen/qwen3-coder:free";
+
+    let output: WebOutput = fallback(prompt);
+
+    if (apiKey) {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.2,
+          max_tokens: 1200,
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a website generator. Output strict JSON with keys: projectName, sitemap, sectionsByPage, components, metadata, codeDraft.",
+            },
+            {
+              role: "user",
+              content: `Prompt: ${prompt}\nIndustry: ${body.industry || "General"}\nStyle: ${body.style || "Modern"}\nPages: ${(body.pages || ["home", "services", "contact"]).join(", ")}\nCTA: ${body.primaryCta || "Start Your Project"}`,
+            },
+          ],
+        }),
+      });
+
+      if (res.ok) {
+        const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+        const raw = data.choices?.[0]?.message?.content || "{}";
+        const parsed = JSON.parse(raw) as Partial<WebOutput>;
+        output = {
+          projectName: parsed.projectName || output.projectName,
+          sitemap: Array.isArray(parsed.sitemap) ? parsed.sitemap : output.sitemap,
+          sectionsByPage: parsed.sectionsByPage || output.sectionsByPage,
+          components: Array.isArray(parsed.components) ? parsed.components : output.components,
+          metadata: parsed.metadata || output.metadata,
+          codeDraft: parsed.codeDraft || output.codeDraft,
+        };
+      }
+    }
+
+    const user = await ensureDemoUser();
+
+    const project = body.projectId
+      ? await prisma.project.update({ where: { id: body.projectId }, data: { updatedAt: new Date() } })
+      : await prisma.project.create({
+          data: {
+            userId: user.id,
+            type: "web",
+            title: output.projectName,
+            description: prompt,
+          },
+        });
+
+    const version = await nextArtifactVersion(project.id);
+
+    const artifact = await prisma.artifact.create({
+      data: {
+        projectId: project.id,
+        type: "plan",
+        title: `Website v${version}`,
+        content: output,
+        version,
+      },
+    });
+
+    return NextResponse.json({
+      projectId: project.id,
+      plan: {
+        sitemap: output.sitemap,
+        sectionsByPage: output.sectionsByPage,
+        components: output.components,
+      },
+      artifact: {
+        id: artifact.id,
+        type: artifact.type,
+        version: artifact.version,
+        title: artifact.title,
+      },
+      output,
+      preview: {
+        mode: "structured",
+        content: output,
+      },
+    });
+  } catch (error) {
+    return creatorErrorResponse(error, "Unexpected web generation error.");
+  }
+}

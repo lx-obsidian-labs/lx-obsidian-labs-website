@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { createProjectId, upsertCreatorProject } from "@/lib/creator-store";
 
 type DocOutput = {
   title?: string;
@@ -33,23 +32,16 @@ export function DocsStudio() {
         body: JSON.stringify({ documentType, companyName, industry, tone, goal, keyPoints: keyPoints.split(",").map((item) => item.trim()).filter(Boolean) }),
       });
 
-      const data = (await res.json().catch(() => null)) as DocOutput | { error?: string } | null;
-      if (!res.ok || !data || ("error" in data && typeof data.error === "string")) {
-        throw new Error((data as { error?: string } | null)?.error || "Document generation failed");
+      const data = (await res.json().catch(() => null)) as
+        | { output?: DocOutput; projectId?: string; error?: string }
+        | null;
+      if (!res.ok || !data || data.error || !data.output) {
+        throw new Error(data?.error || "Document generation failed");
       }
-      const outputData = data as DocOutput;
+      const outputData = data.output;
 
-      const id = createProjectId();
-      setProjectId(id);
       setOutput(outputData);
-      upsertCreatorProject({
-        id,
-        type: "docs",
-        name: outputData.title || `${companyName} Document`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        payload: outputData,
-      });
+      if (data.projectId) setProjectId(data.projectId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Document generation failed");
     } finally {
