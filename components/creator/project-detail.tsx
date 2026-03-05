@@ -66,6 +66,7 @@ export function CreatorProjectDetail({ id }: Props) {
   }
 
   useEffect(() => {
+    setSelectedArtifactId(null);
     void loadProject();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);

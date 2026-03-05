@@ -39,6 +39,9 @@ LEAD_TO_EMAIL=
 LEAD_WEBHOOK_URL=
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL=stepfun/step-3.5-flash:free
+OPENROUTER_MODEL_CODE=qwen/qwen3-coder:free
+OPENROUTER_MODEL_DOCS=openai/gpt-oss-120b:free
+OPENROUTER_MODEL_PLAN=stepfun/step-3.5-flash:free
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 NEXT_PUBLIC_GA_ID=
@@ -51,6 +54,9 @@ AUTH_SECRET=
 - `LEAD_WEBHOOK_URL`: optional webhook sink for lead rows (recommended: Baserow webhook/n8n workflow)
 - `OPENROUTER_API_KEY`: server-side key for AI assistant endpoint (`/api/assistant`)
 - `OPENROUTER_MODEL`: optional model override for OpenRouter chat completions
+- `OPENROUTER_MODEL_CODE`: optional model override for Creator web/code generation
+- `OPENROUTER_MODEL_DOCS`: optional model override for Creator document generation
+- `OPENROUTER_MODEL_PLAN`: optional model override for Creator agent planning
 - `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`: persistent API rate limiting for assistant/leads
 - `NEXT_PUBLIC_GA_ID`: GA4 measurement id for analytics event tracking bootstrap
 - `NEXT_PUBLIC_SITE_URL`: canonical base URL used for metadata, sitemap, and robots

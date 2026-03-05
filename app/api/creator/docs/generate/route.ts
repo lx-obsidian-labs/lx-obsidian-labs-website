@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
 import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
@@ -18,6 +19,20 @@ type DocOutput = {
   outline: string[];
   contentMarkdown: string;
 };
+
+const docOutputSchema = z.object({
+  title: z.string().min(1).max(140).optional(),
+  outline: z.array(z.string().min(1).max(140)).max(24).optional(),
+  contentMarkdown: z.string().min(1).optional(),
+});
+
+function parseJsonSafe(raw: string) {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
 
 function fallback(body: Input): DocOutput {
   return {
@@ -77,12 +92,15 @@ Return strict JSON with keys: title (string), outline (string[]), contentMarkdow
       if (res.ok) {
         const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
         const raw = data.choices?.[0]?.message?.content || "{}";
-        const parsed = JSON.parse(raw) as Partial<DocOutput>;
-        output = {
-          title: parsed.title || output.title,
-          outline: Array.isArray(parsed.outline) ? parsed.outline : output.outline,
-          contentMarkdown: parsed.contentMarkdown || output.contentMarkdown,
-        };
+        const candidate = parseJsonSafe(raw);
+        const parsed = docOutputSchema.safeParse(candidate);
+        if (parsed.success) {
+          output = {
+            title: parsed.data.title || output.title,
+            outline: parsed.data.outline || output.outline,
+            contentMarkdown: parsed.data.contentMarkdown || output.contentMarkdown,
+          };
+        }
       }
     }
 

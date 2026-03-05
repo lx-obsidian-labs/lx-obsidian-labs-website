@@ -149,7 +149,8 @@ export function AgentStudio() {
 
   const checkpoint = () => {
     void (async () => {
-      await fetch("/api/creator/projects", {
+      setError("");
+      const save = await fetch("/api/creator/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -165,6 +166,12 @@ export function AgentStudio() {
           },
         }),
       });
+
+      const saveData = (await save.json().catch(() => null)) as { error?: string } | null;
+      if (!save.ok) {
+        setError(saveData?.error || "Unable to save checkpoint.");
+        return;
+      }
 
       const refresh = await fetch("/api/creator/projects", { cache: "no-store" });
       const refreshData = (await refresh.json().catch(() => null)) as { projects?: ProjectCard[] } | null;

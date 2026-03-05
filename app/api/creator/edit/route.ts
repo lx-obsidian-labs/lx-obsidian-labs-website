@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import { z } from "zod";
 import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
 import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
@@ -10,6 +11,19 @@ type Input = {
   instruction?: string;
   mode?: "web" | "docs";
 };
+
+const editResponseSchema = z.object({
+  updatedArtifact: z.unknown().optional(),
+  changes: z.array(z.string().min(1).max(180)).max(8).optional(),
+});
+
+function parseJsonSafe(raw: string) {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
 
 function fallbackEdit(content: unknown, instruction: string, mode: "web" | "docs") {
   if (mode === "docs" && typeof content === "object" && content !== null) {
@@ -100,12 +114,14 @@ export async function POST(request: Request) {
       if (response.ok) {
         const data = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
         const raw = data.choices?.[0]?.message?.content || "{}";
-        const parsed = JSON.parse(raw) as { updatedArtifact?: unknown; changes?: string[] };
-        if (parsed.updatedArtifact) {
-          nextContent = parsed.updatedArtifact;
-        }
-        if (Array.isArray(parsed.changes) && parsed.changes.length) {
-          changes.splice(0, changes.length, ...parsed.changes.slice(0, 8));
+        const parsed = editResponseSchema.safeParse(parseJsonSafe(raw));
+        if (parsed.success) {
+          if (parsed.data.updatedArtifact) {
+            nextContent = parsed.data.updatedArtifact;
+          }
+          if (parsed.data.changes?.length) {
+            changes.splice(0, changes.length, ...parsed.data.changes);
+          }
         }
       }
     }

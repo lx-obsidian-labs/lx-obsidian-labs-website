@@ -151,9 +151,10 @@ export async function POST(request: Request) {
     }
 
     const results = await Promise.all(jobs);
+    const succeeded = results.filter((result) => result.ok);
     const failed = results.filter((result) => !result.ok);
 
-    if (failed.length > 0) {
+    if (!succeeded.length) {
       return NextResponse.json(
         {
           error: "Lead delivery failed",
@@ -165,6 +166,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      delivery: {
+        channelsAttempted: results.length,
+        channelsSucceeded: succeeded.length,
+        channelsFailed: failed.map((result) => ({ channel: result.channel, status: result.status })),
+      },
       leadScore: intelligence.score,
       leadPriority: intelligence.priority,
       routingTag: intelligence.routingTag,

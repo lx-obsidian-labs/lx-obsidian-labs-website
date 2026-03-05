@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 type Input = {
   objective?: string;
@@ -18,6 +19,20 @@ function fallback(objective: string, workspaceType: string) {
     steps: baseSteps,
     suggestedMode: workspaceType,
   };
+}
+
+const planSchema = z.object({
+  summary: z.string().min(1).max(240).optional(),
+  steps: z.array(z.string().min(1).max(220)).max(8).optional(),
+  suggestedMode: z.enum(["web", "docs", "consult", "mixed"]).optional(),
+});
+
+function parseJsonSafe(raw: string) {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(request: Request) {
@@ -70,16 +85,13 @@ suggestedMode ("web"|"docs"|"consult"|"mixed").`;
 
     const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     const raw = data.choices?.[0]?.message?.content || "{}";
-    const parsed = JSON.parse(raw) as {
-      summary?: string;
-      steps?: string[];
-      suggestedMode?: "web" | "docs" | "consult" | "mixed";
-    };
+    const parsed = planSchema.safeParse(parseJsonSafe(raw));
+    const base = fallback(objective, workspaceType);
 
     return NextResponse.json({
-      summary: parsed.summary || fallback(objective, workspaceType).summary,
-      steps: Array.isArray(parsed.steps) && parsed.steps.length ? parsed.steps.slice(0, 8) : fallback(objective, workspaceType).steps,
-      suggestedMode: parsed.suggestedMode || workspaceType,
+      summary: parsed.success ? parsed.data.summary || base.summary : base.summary,
+      steps: parsed.success && parsed.data.steps?.length ? parsed.data.steps : base.steps,
+      suggestedMode: parsed.success ? parsed.data.suggestedMode || workspaceType : workspaceType,
     });
   } catch {
     return NextResponse.json({ error: "Unexpected agent run error." }, { status: 500 });

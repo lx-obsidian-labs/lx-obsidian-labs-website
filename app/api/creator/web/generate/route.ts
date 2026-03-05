@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
 import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
@@ -20,6 +21,28 @@ type WebOutput = {
   metadata: { title: string; description: string };
   codeDraft: Record<string, string>;
 };
+
+const webOutputSchema = z.object({
+  projectName: z.string().min(1).max(120).optional(),
+  sitemap: z.array(z.string().min(1).max(120)).max(20).optional(),
+  sectionsByPage: z.record(z.string(), z.array(z.string())).optional(),
+  components: z.array(z.string().min(1).max(80)).max(40).optional(),
+  metadata: z
+    .object({
+      title: z.string().min(1).max(80).optional(),
+      description: z.string().min(1).max(220).optional(),
+    })
+    .optional(),
+  codeDraft: z.record(z.string(), z.string()).optional(),
+});
+
+function parseJsonSafe(raw: string) {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
 
 function fallback(prompt: string): WebOutput {
   return {
@@ -91,15 +114,21 @@ export async function POST(request: Request) {
       if (res.ok) {
         const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
         const raw = data.choices?.[0]?.message?.content || "{}";
-        const parsed = JSON.parse(raw) as Partial<WebOutput>;
-        output = {
-          projectName: parsed.projectName || output.projectName,
-          sitemap: Array.isArray(parsed.sitemap) ? parsed.sitemap : output.sitemap,
-          sectionsByPage: parsed.sectionsByPage || output.sectionsByPage,
-          components: Array.isArray(parsed.components) ? parsed.components : output.components,
-          metadata: parsed.metadata || output.metadata,
-          codeDraft: parsed.codeDraft || output.codeDraft,
-        };
+        const candidate = parseJsonSafe(raw);
+        const parsed = webOutputSchema.safeParse(candidate);
+        if (parsed.success) {
+          output = {
+            projectName: parsed.data.projectName || output.projectName,
+            sitemap: parsed.data.sitemap || output.sitemap,
+            sectionsByPage: parsed.data.sectionsByPage || output.sectionsByPage,
+            components: parsed.data.components || output.components,
+            metadata: {
+              title: parsed.data.metadata?.title || output.metadata.title,
+              description: parsed.data.metadata?.description || output.metadata.description,
+            },
+            codeDraft: parsed.data.codeDraft || output.codeDraft,
+          };
+        }
       }
     }
 
