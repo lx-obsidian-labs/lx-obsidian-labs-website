@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type DocOutput = {
@@ -21,10 +21,25 @@ export function DocsStudio() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [stage, setStage] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const presetType = params.get("documentType");
+    const presetCompany = params.get("companyName");
+    const presetTone = params.get("tone");
+    const presetGoal = params.get("goal");
+
+    if (presetType) setDocumentType(presetType);
+    if (presetCompany) setCompanyName(presetCompany);
+    if (presetTone) setTone(presetTone);
+    if (presetGoal) setGoal(presetGoal);
+  }, []);
 
   const generate = async () => {
     setLoading(true);
     setError("");
+    setStage("Preparing document structure...");
     try {
       const res = await fetch("/api/creator/docs/generate", {
         method: "POST",
@@ -38,12 +53,15 @@ export function DocsStudio() {
       if (!res.ok || !data || data.error || !data.output) {
         throw new Error(data?.error || "Document generation failed");
       }
+      setStage("Saving project and versioning artifact...");
       const outputData = data.output;
 
       setOutput(outputData);
       if (data.projectId) setProjectId(data.projectId);
+      setStage("Document ready.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Document generation failed");
+      setStage("");
     } finally {
       setLoading(false);
     }
@@ -70,6 +88,7 @@ export function DocsStudio() {
           <Button onClick={generate} disabled={loading || !companyName.trim()}>{loading ? "Generating..." : "Generate Document"}</Button>
           <Button asChild variant="secondary"><Link href="/creator/projects">View Saved Projects</Link></Button>
         </div>
+        {loading && stage ? <p className="mt-3 text-sm text-muted">{stage}</p> : null}
         {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
       </div>
 

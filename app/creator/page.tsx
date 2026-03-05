@@ -23,6 +23,24 @@ const quickStarts = [
   { label: "Continue existing project", href: "/creator/projects" },
 ];
 
+const guidedStarts = [
+  {
+    title: "Website launch",
+    description: "Create a conversion-focused website plan with sitemap, sections, and metadata.",
+    href: "/creator/web?prompt=Build%20a%20conversion-focused%20website%20for%20a%20digital%20automation%20agency&industry=Technology%20Services&style=clean%20and%20premium",
+  },
+  {
+    title: "Business proposal",
+    description: "Generate a structured proposal draft you can refine and version in projects.",
+    href: "/creator/docs?documentType=proposal&companyName=LX%20Obsidian%20Labs%20Client&tone=professional&goal=Win%20a%20new%20automation%20implementation%20contract",
+  },
+  {
+    title: "Continue project",
+    description: "Jump straight into saved artifacts and apply instruction-based edits.",
+    href: "/creator/projects",
+  },
+];
+
 export default function CreatorPage() {
   return (
     <>
@@ -42,6 +60,23 @@ export default function CreatorPage() {
       </Section>
 
       <Section className="bg-white pb-8">
+        <div className="mb-8 rounded-xl border bg-white p-5 md:p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">Guided Start</p>
+          <h2 className="mt-2 text-2xl font-bold">Pick a starting point and generate your first output fast.</h2>
+          <p className="mt-2 max-w-3xl text-sm text-muted">Choose a template below to prefill your workspace with practical defaults.</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {guidedStarts.map((item) => (
+              <article key={item.title} className="rounded-md border bg-surface p-4">
+                <h3 className="text-base font-semibold">{item.title}</h3>
+                <p className="mt-1 text-sm text-muted">{item.description}</p>
+                <Link href={item.href} className="mt-3 inline-block text-sm font-semibold text-accent hover:underline">
+                  Use This Start
+                </Link>
+              </article>
+            ))}
+          </div>
+        </div>
+
         <div className="mb-8 rounded-xl border bg-surface p-5 md:p-6">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">Workflow</p>
           <div className="mt-4 grid gap-3 md:grid-cols-4">

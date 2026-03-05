@@ -125,19 +125,19 @@ export const customerNeedPaths = [
     title: "I need a business system",
     problem: "Manual workflows are slowing delivery and creating decision bottlenecks.",
     recommendation: "Custom dashboard + role-based workflows + reporting automation",
-    href: "/services",
+    href: "/contact",
   },
   {
     title: "I need automation",
     problem: "Teams are repeating admin tasks that should be triggered automatically.",
     recommendation: "Automation engine + API integrations + alerting",
-    href: "/services",
+    href: "/creator/web",
   },
   {
     title: "I need branding that converts",
     problem: "Current brand presentation lacks consistency and trust across channels.",
     recommendation: "Identity system + campaign templates + conversion-focused visual direction",
-    href: "/services",
+    href: "/services/design-order",
   },
 ];
 

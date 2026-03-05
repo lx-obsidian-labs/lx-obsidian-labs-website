@@ -135,10 +135,20 @@ export function CreatorProjectDetail({ id }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border bg-white p-5">
+      <div className="sticky top-20 z-10 rounded-xl border bg-white/95 p-5 backdrop-blur">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">{project.type}</p>
-        <h1 className="mt-2 text-2xl font-bold">{project.title}</h1>
-        <p className="mt-1 text-sm text-muted">Updated {new Date(project.updatedAt).toLocaleString()}</p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold">{project.title}</h1>
+          <Link href="/creator/projects" className="text-sm font-semibold text-accent hover:underline">
+            Back to Projects
+          </Link>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted">
+          <span>Updated {new Date(project.updatedAt).toLocaleString()}</span>
+          <span className="rounded-full border px-2 py-1">
+            {selectedArtifact ? `${selectedArtifact.title} (v${selectedArtifact.version})` : "No artifact selected"}
+          </span>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-12">

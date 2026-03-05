@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type Plan = {
@@ -21,10 +21,23 @@ export function WebStudio() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [stage, setStage] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const presetPrompt = params.get("prompt");
+    const presetIndustry = params.get("industry");
+    const presetStyle = params.get("style");
+
+    if (presetPrompt) setPrompt(presetPrompt);
+    if (presetIndustry) setIndustry(presetIndustry);
+    if (presetStyle) setStyle(presetStyle);
+  }, []);
 
   const generate = async () => {
     setLoading(true);
     setError("");
+    setStage("Planning structure...");
     try {
       const res = await fetch("/api/creator/web/generate", {
         method: "POST",
@@ -37,11 +50,14 @@ export function WebStudio() {
       if (!res.ok || !data || data.error || !data.output) {
         throw new Error(data?.error || "Plan generation failed");
       }
+      setStage("Saving project and versioning artifact...");
       const planData = data.output;
       setPlan(planData);
       if (data.projectId) setProjectId(data.projectId);
+      setStage("Build plan ready.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Plan generation failed");
+      setStage("");
     } finally {
       setLoading(false);
     }
@@ -60,6 +76,7 @@ export function WebStudio() {
           <Button onClick={generate} disabled={loading || prompt.trim().length < 8}>{loading ? "Generating..." : "Generate Build Plan"}</Button>
           <Button asChild variant="secondary"><Link href="/creator/projects">View Saved Projects</Link></Button>
         </div>
+        {loading && stage ? <p className="mt-3 text-sm text-muted">{stage}</p> : null}
         {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
       </div>
 
