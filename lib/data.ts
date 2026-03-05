@@ -2,6 +2,7 @@ export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/lab", label: "Lab" },
+  { href: "/resources", label: "Resources" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/insights", label: "Insights" },
   { href: "/contact", label: "Contact" },

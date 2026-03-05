@@ -13,6 +13,7 @@ import { stackBadges, testimonials } from "@/content/site";
 import { CustomerNeeds } from "@/components/sections/customer-needs";
 import { StructuredData } from "@/components/structured-data";
 import { FitChecker } from "@/components/interactive/fit-checker";
+import { RoleBasedCtas } from "@/components/sections/role-based-ctas";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -94,6 +95,12 @@ export default function Home() {
       <Section className="bg-white pt-0">
         <Reveal>
           <FitChecker />
+        </Reveal>
+      </Section>
+
+      <Section className="bg-surface pt-0">
+        <Reveal>
+          <RoleBasedCtas />
         </Reveal>
       </Section>
 

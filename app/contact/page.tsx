@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/forms/contact-form";
 import { Section } from "@/components/layout/section";
+import { DeliverySla } from "@/components/sections/delivery-sla";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -23,6 +24,10 @@ export default function ContactPage() {
 
       <Section className="bg-white">
         <ContactForm />
+      </Section>
+
+      <Section className="bg-white pt-0">
+        <DeliverySla />
       </Section>
     </>
   );
