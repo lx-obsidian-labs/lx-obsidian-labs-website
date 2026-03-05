@@ -72,17 +72,17 @@ export default function ServicesPage() {
 
       <Section className="bg-white pt-0">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Industry Solutions</p>
-        <h2 className="mt-3 text-3xl font-bold md:text-4xl">Built for sector-specific workflows.</h2>
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {industrySolutions.map((industry) => (
-            <article key={industry.industry} className="rounded-xl border p-6">
-              <h3 className="text-xl font-semibold">{industry.industry}</h3>
+        <h2 className="mt-3 text-2xl font-bold md:text-4xl">Built for sector-specific workflows.</h2>
+        <div className="mt-6 space-y-3">
+          {industrySolutions.map((industry, index) => (
+            <details key={industry.industry} className="rounded-xl border bg-white p-5" open={index === 0}>
+              <summary className="cursor-pointer text-lg font-semibold">{industry.industry}</summary>
               <ul className="mt-3 space-y-2 text-sm text-muted">
                 {industry.solutions.map((item) => (
                   <li key={item}>- {item}</li>
                 ))}
               </ul>
-            </article>
+            </details>
           ))}
         </div>
       </Section>

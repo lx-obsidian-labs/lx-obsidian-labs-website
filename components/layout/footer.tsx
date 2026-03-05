@@ -21,6 +21,11 @@ export function Footer() {
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-200">Quick Links</p>
           <ul className="mt-3 space-y-2 text-sm text-zinc-300">
             <li>
+              <Link className="hover:text-accent" href="/creator">
+                Creator
+              </Link>
+            </li>
+            <li>
               <Link className="hover:text-accent" href="/services">
                 Services
               </Link>
