@@ -16,7 +16,7 @@ type Plan = {
 export function WebStudio() {
   const [prompt, setPrompt] = useState("");
   const [industry, setIndustry] = useState("");
-  const [style, setStyle] = useState("Base44-style minimal");
+  const [style, setStyle] = useState("minimal and conversion-focused");
   const [plan, setPlan] = useState<Plan | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

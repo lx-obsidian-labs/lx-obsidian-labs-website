@@ -4,16 +4,23 @@ import { Section } from "@/components/layout/section";
 
 export const metadata: Metadata = {
   title: "Obsidian Creator",
-  description: "Build apps, web apps, documents, and business outputs with Obsidian Creator.",
+  description: "Build websites, documents, and execution plans with Obsidian Creator.",
   alternates: { canonical: "/creator" },
 };
 
 const modules = [
-  { title: "Run Obsidian Agent", href: "/creator/agent", detail: "Multi-step in-browser agent workflow like Lovable/Cursor." },
-  { title: "Build Web Apps", href: "/creator/web", detail: "Prompt-to-plan website and app generation." },
-  { title: "Create Documents", href: "/creator/docs", detail: "Generate business documents and profiles." },
-  { title: "Generate Images", href: "/creator/images", detail: "Create brand-ready visuals and assets." },
-  { title: "Business Consultant", href: "/creator/consult", detail: "Get strategy, pricing, and execution plans." },
+  { title: "Agent Workspace", href: "/creator/agent", detail: "Run multi-step goals, track progress, and save checkpoints." },
+  { title: "Website Builder", href: "/creator/web", detail: "Turn one prompt into sitemap, sections, metadata, and draft code." },
+  { title: "Document Studio", href: "/creator/docs", detail: "Generate proposals, company profiles, plans, and policy drafts." },
+  { title: "Projects", href: "/creator/projects", detail: "Open versioned artifacts and edit outputs by instruction." },
+  { title: "Consulting", href: "/creator/consult", detail: "Get execution strategy, rollout sequencing, and operating guidance." },
+];
+
+const quickStarts = [
+  { label: "Build a new website", href: "/creator/web" },
+  { label: "Generate a business document", href: "/creator/docs" },
+  { label: "Run the autonomous agent", href: "/creator/agent" },
+  { label: "Continue existing project", href: "/creator/projects" },
 ];
 
 export default function CreatorPage() {
@@ -21,13 +28,46 @@ export default function CreatorPage() {
     <>
       <Section className="bg-[#0b0b0d] py-20 text-white">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Obsidian Creator</p>
-        <h1 className="mt-3 max-w-4xl text-4xl font-bold md:text-5xl">Build apps and web apps with AI, Base44-style.</h1>
-        <p className="mt-5 max-w-2xl text-zinc-300">
-          Pick what you want to build, describe it in plain language, and iterate quickly with guided outputs.
+        <h1 className="mt-3 max-w-4xl text-4xl font-bold md:text-5xl">AI Build System for websites, docs, and execution workflows.</h1>
+        <p className="mt-5 max-w-3xl text-zinc-300">
+          Start with a plain-language goal, generate a usable first output, then iterate with instruction-based edits inside versioned projects.
         </p>
+        <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {quickStarts.map((item) => (
+            <Link key={item.href} href={item.href} className="rounded-md border border-zinc-700 bg-zinc-900/50 px-4 py-3 text-sm font-semibold text-white transition hover:border-accent hover:text-accent">
+              {item.label}
+            </Link>
+          ))}
+        </div>
       </Section>
 
-      <Section className="bg-white">
+      <Section className="bg-white pb-8">
+        <div className="mb-8 rounded-xl border bg-surface p-5 md:p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">Workflow</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-4">
+            <div className="rounded-md border bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 1</p>
+              <p className="mt-1 text-sm font-semibold">Define goal</p>
+              <p className="mt-1 text-xs text-muted">Describe the business outcome you want in one prompt.</p>
+            </div>
+            <div className="rounded-md border bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 2</p>
+              <p className="mt-1 text-sm font-semibold">Generate draft</p>
+              <p className="mt-1 text-xs text-muted">Create a first artifact with structure, copy, and implementation hints.</p>
+            </div>
+            <div className="rounded-md border bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 3</p>
+              <p className="mt-1 text-sm font-semibold">Refine by instruction</p>
+              <p className="mt-1 text-xs text-muted">Use focused edits to create new artifact versions quickly.</p>
+            </div>
+            <div className="rounded-md border bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 4</p>
+              <p className="mt-1 text-sm font-semibold">Ship output</p>
+              <p className="mt-1 text-xs text-muted">Reuse saved projects and continue from where you left off.</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-5 sm:grid-cols-2">
           {modules.map((module) => (
             <article key={module.title} className="rounded-xl border bg-surface p-5">

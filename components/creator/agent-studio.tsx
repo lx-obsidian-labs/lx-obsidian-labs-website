@@ -37,7 +37,11 @@ export function AgentStudio() {
   useEffect(() => {
     async function loadProjects() {
       const res = await fetch("/api/creator/projects", { cache: "no-store" });
-      const data = (await res.json().catch(() => null)) as { projects?: ProjectCard[] } | null;
+      const data = (await res.json().catch(() => null)) as { projects?: ProjectCard[]; error?: string } | null;
+      if (!res.ok) {
+        setError(data?.error || "Unable to load creator projects.");
+        return;
+      }
       if (res.ok && data?.projects) {
         setProjects(data.projects);
       }
@@ -86,31 +90,27 @@ export function AgentStudio() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/creator/web/plan", {
+      const res = await fetch("/api/creator/web/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: objective, style: "Base44-style clean" }),
+        body: JSON.stringify({ prompt: objective, style: "clean and conversion-focused" }),
       });
-      const data = (await res.json()) as Record<string, unknown>;
-      if (!res.ok) throw new Error("Web plan generation failed");
-
-      await fetch("/api/creator/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: String(data.projectName || "Agent Web Project"),
-          type: "web",
-          description: "Created by Obsidian Agent",
-          payload: data,
-        }),
-      });
+      const data = (await res.json().catch(() => null)) as { error?: string; projectId?: string; output?: { projectName?: string } } | null;
+      if (!res.ok) throw new Error(data?.error || "Web plan generation failed");
 
       const refresh = await fetch("/api/creator/projects", { cache: "no-store" });
       const refreshData = (await refresh.json().catch(() => null)) as { projects?: ProjectCard[] } | null;
       if (refresh.ok && refreshData?.projects) setProjects(refreshData.projects);
-      setMessages((prev) => [...prev, { role: "agent", text: "Web plan generated and saved as project.", at: new Date().toISOString() }]);
-    } catch {
-      setError("Web execution failed.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "agent",
+          text: `Web output generated and saved${data?.projectId ? ` (project ${data.projectId.slice(0, 8)}).` : "."}`,
+          at: new Date().toISOString(),
+        },
+      ]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Web execution failed.");
     } finally {
       setLoading(false);
     }
@@ -126,26 +126,22 @@ export function AgentStudio() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ documentType: "proposal", companyName: "LX Obsidian Labs Client", goal: objective }),
       });
-      const data = (await res.json()) as Record<string, unknown>;
-      if (!res.ok) throw new Error("Document generation failed");
-
-      await fetch("/api/creator/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: String(data.title || "Agent Document Project"),
-          type: "docs",
-          description: "Created by Obsidian Agent",
-          payload: data,
-        }),
-      });
+      const data = (await res.json().catch(() => null)) as { error?: string; projectId?: string; output?: { title?: string } } | null;
+      if (!res.ok) throw new Error(data?.error || "Document generation failed");
 
       const refresh = await fetch("/api/creator/projects", { cache: "no-store" });
       const refreshData = (await refresh.json().catch(() => null)) as { projects?: ProjectCard[] } | null;
       if (refresh.ok && refreshData?.projects) setProjects(refreshData.projects);
-      setMessages((prev) => [...prev, { role: "agent", text: "Document output generated and saved as project.", at: new Date().toISOString() }]);
-    } catch {
-      setError("Document execution failed.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "agent",
+          text: `Document output generated and saved${data?.projectId ? ` (project ${data.projectId.slice(0, 8)}).` : "."}`,
+          at: new Date().toISOString(),
+        },
+      ]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Document execution failed.");
     } finally {
       setLoading(false);
     }

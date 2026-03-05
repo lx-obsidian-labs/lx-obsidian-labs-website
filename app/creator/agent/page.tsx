@@ -15,7 +15,7 @@ export default function CreatorAgentPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Creator / Agent</p>
         <h1 className="mt-3 max-w-4xl text-4xl font-bold md:text-5xl">Obsidian Agent Workspace</h1>
         <p className="mt-5 max-w-2xl text-zinc-300">
-          Run multi-step build tasks in-browser, iterate by instruction, and keep versioned outputs like Lovable/Cursor workflows.
+          Run multi-step build tasks in-browser, iterate by instruction, and keep versioned outputs in one workspace.
         </p>
       </Section>
       <Section className="bg-surface pt-0">
