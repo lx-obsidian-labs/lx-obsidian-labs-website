@@ -5,7 +5,30 @@ export const companyContent = {
     "LX Obsidian Labs builds digital systems, brand identity frameworks, and operational technology infrastructure for growth-focused businesses.",
   shortDescription:
     "We combine software engineering, design systems, and business automation to deliver measurable outcomes.",
+  transitionNote:
+    "Our long-term roadmap includes a strong transition into applied robotics by 2028 as we continue building the required talent, infrastructure, and research resources.",
 };
+
+export const roboticsRoadmap = [
+  {
+    year: "2026",
+    title: "Systems Foundation",
+    detail:
+      "Expand software, automation, and data infrastructure capabilities that serve as the backbone for robotics-ready operations.",
+  },
+  {
+    year: "2027",
+    title: "Resource Acquisition",
+    detail:
+      "Scale partnerships, specialist talent, and prototyping capacity to support robotics-aligned research and implementation.",
+  },
+  {
+    year: "2028",
+    title: "Applied Robotics Transition",
+    detail:
+      "Introduce robotics-focused solutions where software, automation, and intelligent systems converge for real-world business use cases.",
+  },
+];
 
 export const testimonials = [
   {

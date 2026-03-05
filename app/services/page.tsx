@@ -34,7 +34,8 @@ export default function ServicesPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Services</p>
         <h1 className="mt-3 max-w-3xl text-4xl font-bold md:text-5xl">Technology, design, and business systems built to perform.</h1>
         <p className="mt-5 max-w-2xl text-zinc-300">
-          Every engagement is structured to deliver practical outcomes, measurable value, and systems your team can operate with confidence.
+          Every engagement is structured to deliver practical outcomes, measurable value, and systems your team can operate with confidence across
+          mobile, desktop, and multi-device workflows.
         </p>
       </Section>
 

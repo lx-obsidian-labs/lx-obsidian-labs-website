@@ -112,6 +112,9 @@ export default function Home() {
               <p>
                 The result is faster delivery, lower complexity, and technology foundations built for sustainable growth.
               </p>
+              <p>
+                Our strategy also includes a measured transition into applied robotics by 2028 as resources, partnerships, and R&D capacity mature.
+              </p>
               <Button asChild variant="secondary">
                 <Link href="/about">Learn More About Us</Link>
               </Button>
@@ -127,11 +130,16 @@ export default function Home() {
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Call To Action</p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to build your next digital system?</h2>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
+              <Button asChild size="lg" className="w-full sm:w-auto">
                 <Link href="/contact">Start Your Project</Link>
               </Button>
-              <Button asChild size="lg" variant="secondary" className="border-zinc-200 text-zinc-100 hover:bg-zinc-100 hover:text-[#111111]">
+              <Button
+                asChild
+                size="lg"
+                variant="secondary"
+                className="w-full border-zinc-200 text-zinc-100 hover:bg-zinc-100 hover:text-[#111111] sm:w-auto"
+              >
                 <Link href="/lab">Explore The Lab</Link>
               </Button>
             </div>

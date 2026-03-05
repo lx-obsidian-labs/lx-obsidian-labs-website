@@ -12,13 +12,18 @@ export function Hero() {
           Software, Design &amp; Systems for Modern Businesses
         </h1>
         <p className="mt-6 max-w-2xl text-base text-zinc-300 md:text-lg">
-          We build scalable technology, strong brand identity, and efficient business systems.
+          We build scalable technology, strong brand identity, and efficient business systems, while strategically advancing toward applied robotics by 2028.
         </p>
-        <div className="mt-10 flex flex-wrap items-center gap-4">
-          <Button asChild size="lg">
+        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <Button asChild size="lg" className="w-full sm:w-auto">
             <Link href="/contact">Start Your Project</Link>
           </Button>
-          <Button asChild variant="secondary" size="lg" className="border-zinc-200 text-zinc-200 hover:bg-zinc-200 hover:text-[#111111]">
+          <Button
+            asChild
+            variant="secondary"
+            size="lg"
+            className="w-full border-zinc-200 text-zinc-200 hover:bg-zinc-200 hover:text-[#111111] sm:w-auto"
+          >
             <Link href="/services" className="inline-flex items-center gap-2">
               View Services <ArrowRight className="h-4 w-4" />
             </Link>

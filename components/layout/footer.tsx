@@ -9,8 +9,11 @@ export function Footer() {
       <Container className="grid gap-8 md:grid-cols-3">
         <div>
           <p className="text-lg font-bold">LX Obsidian Labs</p>
-          <p className="mt-3 max-w-xs text-sm text-zinc-300">
+          <p className="mt-3 max-w-sm text-sm text-zinc-300">
             We build software, branding, and operational systems that help modern businesses scale with confidence.
+          </p>
+          <p className="mt-2 max-w-sm text-sm text-zinc-400">
+            Strategic roadmap: transition toward applied robotics by 2028 as resources and research capacity expand.
           </p>
         </div>
 

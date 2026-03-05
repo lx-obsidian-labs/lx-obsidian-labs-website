@@ -3,9 +3,9 @@ import { customerNeedPaths } from "@/lib/data";
 
 export function CustomerNeeds() {
   return (
-    <div className="rounded-2xl border bg-white p-8 md:p-10">
+    <div className="rounded-2xl border bg-white p-6 md:p-10">
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Customer Need Paths</p>
-      <h2 className="mt-3 text-3xl font-bold md:text-4xl">Start from your real business problem.</h2>
+      <h2 className="mt-3 text-2xl font-bold md:text-4xl">Start from your real business problem.</h2>
 
       <div className="mt-8 grid gap-5 md:grid-cols-3">
         {customerNeedPaths.map((path) => (
