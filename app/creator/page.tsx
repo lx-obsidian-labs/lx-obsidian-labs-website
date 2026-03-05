@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 const modules = [
+  { title: "Run Obsidian Agent", href: "/creator/agent", detail: "Multi-step in-browser agent workflow like Lovable/Cursor." },
   { title: "Build Web Apps", href: "/creator/web", detail: "Prompt-to-plan website and app generation." },
   { title: "Create Documents", href: "/creator/docs", detail: "Generate business documents and profiles." },
   { title: "Generate Images", href: "/creator/images", detail: "Create brand-ready visuals and assets." },
