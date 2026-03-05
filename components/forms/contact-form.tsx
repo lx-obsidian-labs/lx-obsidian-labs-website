@@ -14,6 +14,8 @@ type LeadPayload = {
   name: string;
   email: string;
   company: string;
+  currentTools: string;
+  primaryGoal: string;
   message: string;
   website: string;
 };
@@ -25,9 +27,47 @@ const initialLead: LeadPayload = {
   name: "",
   email: "",
   company: "",
+  currentTools: "",
+  primaryGoal: "",
   message: "",
   website: "",
 };
+
+function dynamicPrompt(service: string) {
+  if (service === "Automation System") {
+    return {
+      toolsLabel: "Current systems/tools",
+      toolsPlaceholder: "Eg. Excel, WhatsApp, Google Forms, ERP",
+      goalLabel: "Main automation target",
+      goalPlaceholder: "Eg. reduce manual handovers and repetitive admin",
+    };
+  }
+
+  if (service === "Brand Identity") {
+    return {
+      toolsLabel: "Current brand channels",
+      toolsPlaceholder: "Eg. website, social, print, sales decks",
+      goalLabel: "Primary brand objective",
+      goalPlaceholder: "Eg. improve trust and consistency across channels",
+    };
+  }
+
+  if (service === "CMS System") {
+    return {
+      toolsLabel: "Current content workflow",
+      toolsPlaceholder: "Eg. manual publishing and scattered files",
+      goalLabel: "Primary CMS objective",
+      goalPlaceholder: "Eg. faster publishing with approval controls",
+    };
+  }
+
+  return {
+    toolsLabel: "Current tools",
+    toolsPlaceholder: "Eg. CRM, invoicing, team collaboration tools",
+    goalLabel: "Primary business goal",
+    goalPlaceholder: "Eg. improve efficiency and reporting visibility",
+  };
+}
 
 export function ContactForm() {
   const [step, setStep] = useState(1);
@@ -36,17 +76,21 @@ export function ContactForm() {
   const [error, setError] = useState("");
   const [lead, setLead] = useState<LeadPayload>(initialLead);
   const [startedAt, setStartedAt] = useState<number>(Date.now());
+  const [leadFit, setLeadFit] = useState<{ score: number; priority: string } | null>(null);
 
   const stepValid = useMemo(() => {
     if (step === 1) return Boolean(lead.projectType && lead.budgetRange && lead.timeline);
     if (step === 2) return Boolean(lead.name && lead.email);
-    return true;
+    return Boolean(lead.currentTools && lead.primaryGoal);
   }, [lead, step]);
+
+  const prompts = dynamicPrompt(lead.projectType);
 
   const submitLead = async () => {
     setLoading(true);
     setError("");
     setSuccess(false);
+    setLeadFit(null);
     track("lead_submit_attempt", { source: "multistep_contact_form" });
 
     try {
@@ -66,11 +110,22 @@ export function ContactForm() {
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(data?.error || "Submission failed");
       }
+      const data = (await res.json().catch(() => null)) as
+        | { leadScore?: number; leadPriority?: string; whatsappUrl?: string }
+        | null;
+
       setSuccess(true);
+      if (typeof data?.leadScore === "number" && typeof data?.leadPriority === "string") {
+        setLeadFit({ score: data.leadScore, priority: data.leadPriority });
+      }
       setLead(initialLead);
       setStartedAt(Date.now());
       setStep(1);
       track("lead_submit_success", { source: "multistep_contact_form" });
+
+      if (data?.whatsappUrl) {
+        window.location.href = data.whatsappUrl;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not submit right now. Please use WhatsApp or email.");
       track("lead_submit_failed", { source: "multistep_contact_form" });
@@ -188,6 +243,26 @@ export function ContactForm() {
         {step === 3 ? (
           <div className="space-y-2">
             <label className="space-y-2 text-sm font-medium">
+              {prompts.toolsLabel}
+              <input
+                value={lead.currentTools}
+                onChange={(e) => setLead((prev) => ({ ...prev, currentTools: e.target.value }))}
+                className="h-11 w-full rounded-md border border-border px-3 text-sm"
+                placeholder={prompts.toolsPlaceholder}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium">
+              {prompts.goalLabel}
+              <input
+                value={lead.primaryGoal}
+                onChange={(e) => setLead((prev) => ({ ...prev, primaryGoal: e.target.value }))}
+                className="h-11 w-full rounded-md border border-border px-3 text-sm"
+                placeholder={prompts.goalPlaceholder}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium">
               Project details
               <textarea
                 value={lead.message}
@@ -213,6 +288,11 @@ export function ContactForm() {
           {success ? "Submitted successfully. We will reach out shortly." : error}
         </p>
         {success ? <p className="text-sm font-medium text-green-700">Submitted successfully. We will reach out shortly.</p> : null}
+        {success && leadFit ? (
+          <p className="text-sm font-medium text-[#111111]">
+            Qualification score: {leadFit.score}/100 ({leadFit.priority.toUpperCase()} priority)
+          </p>
+        ) : null}
         {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
 
         <div className="flex flex-wrap gap-3">

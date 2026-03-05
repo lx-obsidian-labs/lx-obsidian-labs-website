@@ -42,6 +42,7 @@ OPENROUTER_MODEL=stepfun/step-3.5-flash:free
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 NEXT_PUBLIC_GA_ID=
+NEXT_PUBLIC_SITE_URL=https://lxobsidianlabs.vercel.app
 ```
 
 - `RESEND_API_KEY` + `LEAD_TO_EMAIL`: email notifications for new leads
@@ -50,6 +51,7 @@ NEXT_PUBLIC_GA_ID=
 - `OPENROUTER_MODEL`: optional model override for OpenRouter chat completions
 - `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`: persistent API rate limiting for assistant/leads
 - `NEXT_PUBLIC_GA_ID`: GA4 measurement id for analytics event tracking bootstrap
+- `NEXT_PUBLIC_SITE_URL`: canonical base URL used for metadata, sitemap, and robots
 
 ## Build For Production
 

@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { SystemsDashboardPreview } from "@/components/interactive/systems-dashboard-preview";
 import { stackBadges, testimonials } from "@/content/site";
+import { CustomerNeeds } from "@/components/sections/customer-needs";
+import { StructuredData } from "@/components/structured-data";
+import { FitChecker } from "@/components/interactive/fit-checker";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -31,6 +34,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+      <StructuredData />
       <Hero />
 
       <Section id="services-preview" className="bg-white">
@@ -78,6 +82,18 @@ export default function Home() {
       <Section className="bg-white pt-0">
         <Reveal>
           <SystemsDashboardPreview />
+        </Reveal>
+      </Section>
+
+      <Section className="bg-surface pt-0">
+        <Reveal>
+          <CustomerNeeds />
+        </Reveal>
+      </Section>
+
+      <Section className="bg-white pt-0">
+        <Reveal>
+          <FitChecker />
         </Reveal>
       </Section>
 

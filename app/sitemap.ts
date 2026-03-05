@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
 import { caseStudies, insights } from "@/lib/data";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lxobsidianlabs.vercel.app";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://lxobsidianlabs.com";
+  const baseUrl = siteUrl;
   const staticRoutes: Array<{ route: string; lastModified: string; priority: number }> = [
     { route: "", lastModified: "2026-03-05", priority: 1 },
     { route: "/services", lastModified: "2026-03-05", priority: 0.9 },

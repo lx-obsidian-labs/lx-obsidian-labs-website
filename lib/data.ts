@@ -46,6 +46,99 @@ export const services = [
   },
 ];
 
+export const servicePackages = {
+  "Software Development": [
+    {
+      tier: "Starter",
+      bestFor: "MVPs and internal tools",
+      timeline: "4-8 weeks",
+      startingAt: "R60,000",
+      outcomes: ["Core workflow build", "Admin panel", "Deployment setup"],
+    },
+    {
+      tier: "Growth",
+      bestFor: "Operational systems and portals",
+      timeline: "8-14 weeks",
+      startingAt: "R150,000",
+      outcomes: ["Role-based workflows", "Automation flows", "Reporting dashboards"],
+    },
+    {
+      tier: "Scale",
+      bestFor: "Multi-team and integration-heavy systems",
+      timeline: "14+ weeks",
+      startingAt: "R300,000",
+      outcomes: ["Complex integrations", "Performance architecture", "Advanced observability"],
+    },
+  ],
+  "Graphic Design": [
+    {
+      tier: "Starter",
+      bestFor: "Early-stage brand direction",
+      timeline: "2-4 weeks",
+      startingAt: "R25,000",
+      outcomes: ["Logo suite", "Typography pairings", "Color direction"],
+    },
+    {
+      tier: "Growth",
+      bestFor: "Campaign-ready brand systems",
+      timeline: "4-7 weeks",
+      startingAt: "R55,000",
+      outcomes: ["Brand guidelines", "Template systems", "Social/marketing assets"],
+    },
+    {
+      tier: "Scale",
+      bestFor: "Multi-channel brand operations",
+      timeline: "7+ weeks",
+      startingAt: "R95,000",
+      outcomes: ["Design system", "Cross-platform library", "Creative operations framework"],
+    },
+  ],
+  "Business Consultancy": [
+    {
+      tier: "Starter",
+      bestFor: "Process diagnostics",
+      timeline: "2-3 weeks",
+      startingAt: "R30,000",
+      outcomes: ["Systems audit", "Priority map", "Execution recommendations"],
+    },
+    {
+      tier: "Growth",
+      bestFor: "Operational redesign",
+      timeline: "4-8 weeks",
+      startingAt: "R70,000",
+      outcomes: ["Workflow redesign", "Automation roadmap", "Team implementation plan"],
+    },
+    {
+      tier: "Scale",
+      bestFor: "Transformation programs",
+      timeline: "8+ weeks",
+      startingAt: "R140,000",
+      outcomes: ["Quarterly strategy model", "KPI architecture", "Leadership operating cadence"],
+    },
+  ],
+} as const;
+
+export const customerNeedPaths = [
+  {
+    title: "I need a business system",
+    problem: "Manual workflows are slowing delivery and creating decision bottlenecks.",
+    recommendation: "Custom dashboard + role-based workflows + reporting automation",
+    href: "/services",
+  },
+  {
+    title: "I need automation",
+    problem: "Teams are repeating admin tasks that should be triggered automatically.",
+    recommendation: "Automation engine + API integrations + alerting",
+    href: "/services",
+  },
+  {
+    title: "I need branding that converts",
+    problem: "Current brand presentation lacks consistency and trust across channels.",
+    recommendation: "Identity system + campaign templates + conversion-focused visual direction",
+    href: "/services",
+  },
+];
+
 export const industrySolutions = [
   {
     industry: "Education",
@@ -84,6 +177,8 @@ export type CaseStudy = {
   technology: string[];
   results: string[];
   updatedAt: string;
+  metrics: Array<{ label: string; value: string }>;
+  related: string[];
 };
 
 export const caseStudies: CaseStudy[] = [
@@ -101,6 +196,12 @@ export const caseStudies: CaseStudy[] = [
     technology: ["Next.js", "PostgreSQL", "Role-Based Access", "Workflow Automations"],
     results: ["62% faster approvals", "Single source of operational truth", "Reduced manual reporting time"],
     updatedAt: "2026-02-10",
+    metrics: [
+      { label: "Approval Speed", value: "+62%" },
+      { label: "Report Time", value: "-48%" },
+      { label: "Operational Visibility", value: "Realtime" },
+    ],
+    related: ["pulse-client-portal", "crestline-process-redesign"],
   },
   {
     slug: "nexa-brand-identity",
@@ -116,6 +217,12 @@ export const caseStudies: CaseStudy[] = [
     technology: ["Design Systems", "Brand Toolkit", "UI Components", "Content Templates"],
     results: ["Consistent cross-channel presentation", "Faster campaign production", "Clearer brand recognition"],
     updatedAt: "2026-01-20",
+    metrics: [
+      { label: "Campaign Production", value: "+37%" },
+      { label: "Brand Consistency", value: "+52%" },
+      { label: "Creative Reuse", value: "High" },
+    ],
+    related: ["kinetic-campaign-system", "vantage-growth-blueprint"],
   },
   {
     slug: "crestline-process-redesign",
@@ -131,6 +238,12 @@ export const caseStudies: CaseStudy[] = [
     technology: ["Systems Mapping", "Automation Rules", "Digital SOPs", "Performance Dashboards"],
     results: ["70% less administrative overhead", "Shorter delivery cycles", "Greater leadership visibility"],
     updatedAt: "2026-02-02",
+    metrics: [
+      { label: "Admin Load", value: "-70%" },
+      { label: "Cycle Time", value: "-31%" },
+      { label: "Escalation Clarity", value: "+44%" },
+    ],
+    related: ["atlas-operations-platform", "vantage-growth-blueprint"],
   },
   {
     slug: "pulse-client-portal",
@@ -146,6 +259,12 @@ export const caseStudies: CaseStudy[] = [
     technology: ["Next.js", "Secure Authentication", "Notifications", "Document Management"],
     results: ["Higher client confidence", "Reduced status meeting load", "Faster approvals and feedback"],
     updatedAt: "2026-02-18",
+    metrics: [
+      { label: "Client Response Time", value: "-42%" },
+      { label: "Status Meetings", value: "-35%" },
+      { label: "Feedback Loop", value: "Faster" },
+    ],
+    related: ["atlas-operations-platform", "kinetic-campaign-system"],
   },
   {
     slug: "kinetic-campaign-system",
@@ -161,6 +280,12 @@ export const caseStudies: CaseStudy[] = [
     technology: ["Figma System", "Component Library", "Creative Ops", "Asset Automation"],
     results: ["Faster campaign turnarounds", "Improved visual consistency", "Lower creative production cost"],
     updatedAt: "2026-01-28",
+    metrics: [
+      { label: "Creative Turnaround", value: "+41%" },
+      { label: "Design Consistency", value: "+49%" },
+      { label: "Production Cost", value: "-23%" },
+    ],
+    related: ["nexa-brand-identity", "pulse-client-portal"],
   },
   {
     slug: "vantage-growth-blueprint",
@@ -176,6 +301,12 @@ export const caseStudies: CaseStudy[] = [
     technology: ["Roadmapping", "KPI Design", "Ops Strategy", "Technology Advisory"],
     results: ["Clear implementation priorities", "Improved resource allocation", "Executive alignment on growth plan"],
     updatedAt: "2026-02-05",
+    metrics: [
+      { label: "Planning Clarity", value: "+58%" },
+      { label: "Resource Efficiency", value: "+29%" },
+      { label: "Leadership Alignment", value: "Strong" },
+    ],
+    related: ["crestline-process-redesign", "nexa-brand-identity"],
   },
 ];
 

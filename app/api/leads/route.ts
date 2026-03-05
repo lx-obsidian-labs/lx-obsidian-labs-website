@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { leadPayloadSchema } from "@/lib/validation";
+import { scoreLead } from "@/lib/lead-scoring";
 
 type LeadPayload = {
   projectType?: string;
@@ -9,22 +10,56 @@ type LeadPayload = {
   name?: string;
   email?: string;
   company?: string;
+  currentTools?: string;
+  primaryGoal?: string;
   message?: string;
   website?: string;
   startedAt?: number;
 };
 
-function buildEmailHtml(payload: LeadPayload) {
+function buildEmailHtml(
+  payload: LeadPayload,
+  intelligence: { score: number; priority: "low" | "medium" | "high"; routingTag: string },
+) {
   return `
     <h2>New Lead - LX Obsidian Labs</h2>
+    <p><strong>Priority:</strong> ${intelligence.priority.toUpperCase()}</p>
+    <p><strong>Lead Score:</strong> ${intelligence.score}/100</p>
+    <p><strong>Routing Tag:</strong> ${intelligence.routingTag}</p>
     <p><strong>Name:</strong> ${payload.name ?? ""}</p>
     <p><strong>Email:</strong> ${payload.email ?? ""}</p>
     <p><strong>Company:</strong> ${payload.company ?? ""}</p>
+    <p><strong>Current Tools:</strong> ${payload.currentTools ?? ""}</p>
+    <p><strong>Primary Goal:</strong> ${payload.primaryGoal ?? ""}</p>
     <p><strong>Project Type:</strong> ${payload.projectType ?? ""}</p>
     <p><strong>Budget Range:</strong> ${payload.budgetRange ?? ""}</p>
     <p><strong>Timeline:</strong> ${payload.timeline ?? ""}</p>
     <p><strong>Message:</strong><br/>${payload.message ?? ""}</p>
   `;
+}
+
+function buildWhatsAppUrl(
+  payload: LeadPayload,
+  intelligence: { score: number; priority: "low" | "medium" | "high"; routingTag: string },
+) {
+  const lines = [
+    "New LX Obsidian Labs Lead",
+    `Name: ${payload.name ?? ""}`,
+    `Email: ${payload.email ?? ""}`,
+    `Company: ${payload.company ?? ""}`,
+    `Project Type: ${payload.projectType ?? ""}`,
+    `Budget: ${payload.budgetRange ?? ""}`,
+    `Timeline: ${payload.timeline ?? ""}`,
+    `Primary Goal: ${payload.primaryGoal ?? ""}`,
+    `Tools: ${payload.currentTools ?? ""}`,
+    `Priority: ${intelligence.priority.toUpperCase()}`,
+    `Score: ${intelligence.score}/100`,
+    `Routing: ${intelligence.routingTag}`,
+    `Message: ${payload.message ?? ""}`,
+  ];
+
+  const text = encodeURIComponent(lines.join("\n"));
+  return `https://wa.me/27762982399?text=${text}`;
 }
 
 export async function POST(request: Request) {
@@ -49,6 +84,7 @@ export async function POST(request: Request) {
     }
 
     const payload = parsed.data;
+    const intelligence = scoreLead(payload);
 
     if (typeof payload.startedAt === "number") {
       const elapsedMs = Date.now() - payload.startedAt;
@@ -68,7 +104,12 @@ export async function POST(request: Request) {
         fetch(webhook, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            ...payload,
+            leadScore: intelligence.score,
+            leadPriority: intelligence.priority,
+            routingTag: intelligence.routingTag,
+          }),
         }).then(async (res) => {
           await res.text();
           return {
@@ -91,8 +132,8 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             from: "LX Obsidian Labs <onboarding@resend.dev>",
             to: [leadToEmail],
-            subject: `New lead: ${payload.projectType}`,
-            html: buildEmailHtml(payload),
+            subject: `[${intelligence.priority.toUpperCase()}] New lead: ${payload.projectType}`,
+            html: buildEmailHtml(payload, intelligence),
           }),
         }).then(async (res) => {
           await res.text();
@@ -122,7 +163,13 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      leadScore: intelligence.score,
+      leadPriority: intelligence.priority,
+      routingTag: intelligence.routingTag,
+      whatsappUrl: buildWhatsAppUrl(payload, intelligence),
+    });
   } catch {
     return NextResponse.json({ error: "Unexpected server error" }, { status: 500 });
   }

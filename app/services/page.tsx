@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Section } from "@/components/layout/section";
 import { ServiceCard } from "@/components/cards/service-card";
 import { CostEstimator } from "@/components/interactive/cost-estimator";
+import { ServicePackages } from "@/components/sections/service-packages";
 import { industrySolutions, services } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -47,6 +48,10 @@ export default function ServicesPage() {
 
       <Section className="bg-surface pt-0">
         <CostEstimator />
+      </Section>
+
+      <Section className="bg-white pt-0">
+        <ServicePackages />
       </Section>
 
       <Section className="bg-white pt-0">

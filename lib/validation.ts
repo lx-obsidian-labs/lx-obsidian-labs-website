@@ -12,6 +12,8 @@ export const leadPayloadSchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.email(),
   company: z.string().trim().max(120).optional().default(""),
+  currentTools: z.string().trim().max(300).optional().default(""),
+  primaryGoal: z.string().trim().max(300).optional().default(""),
   message: z.string().trim().min(12).max(4000).refine(noExcessiveLinks, "Too many links"),
   website: z.string().trim().max(0).optional().default(""),
   startedAt: z.number().int().positive().optional(),

@@ -7,6 +7,8 @@ import { Footer } from "@/components/layout/footer";
 import { FloatingActions } from "@/components/interactive/floating-actions";
 import { companyContent } from "@/content/site";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lxobsidianlabs.vercel.app";
+
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
@@ -14,32 +16,65 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lxobsidianlabs.com"),
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "LX Obsidian Labs | Software, Design & Business Systems",
+    default: "LX Obsidian Labs | Software Development & Automation Systems",
     template: "%s | LX Obsidian Labs",
   },
-  description: companyContent.intro,
+  description:
+    "LX Obsidian Labs builds custom software, automation systems, AI-powered tools, and digital platforms that help businesses scale efficiently.",
   keywords: [
     "software development",
+    "automation systems",
+    "custom web development",
+    "AI systems",
+    "business automation",
+    "technology solutions",
+    "Next.js development",
+    "software engineering",
+    "digital platforms",
+    "enterprise systems",
     "graphic design",
     "business consultancy",
-    "technology infrastructure",
     "LX Obsidian Labs",
   ],
+  authors: [{ name: "LX Obsidian Labs" }],
+  creator: "LX Obsidian Labs",
+  publisher: "LX Obsidian Labs",
   openGraph: {
     title: "LX Obsidian Labs",
     description:
-      "Software, design, and systems for modern businesses. Build, scale, and operate with clarity.",
+      "Custom software development, automation systems, and intelligent digital platforms for modern businesses.",
     type: "website",
-    url: "https://lxobsidianlabs.com",
+    url: siteUrl,
     siteName: "LX Obsidian Labs",
+    locale: "en_US",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "LX Obsidian Labs",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "LX Obsidian Labs",
     description:
-      "Software, design, and systems for modern businesses. Build, scale, and operate with clarity.",
+      "Custom software development, automation systems, and digital infrastructure.",
+    images: ["/opengraph-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -53,7 +88,8 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: companyContent.name,
-    url: "https://lxobsidianlabs.com",
+    url: siteUrl,
+    logo: `${siteUrl}/opengraph-image`,
     email: "vilanenathan@gmail.com",
     telephone: "+27762982399",
     description: companyContent.intro,
