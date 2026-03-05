@@ -33,6 +33,12 @@ const initialLead: LeadPayload = {
   website: "",
 };
 
+const stepMeta = {
+  1: { title: "Project Scope", helper: "Choose service type, budget, and timeline." },
+  2: { title: "Contact Details", helper: "Tell us who to contact for follow-up." },
+  3: { title: "Business Context", helper: "Share current tools, goals, and expected outcomes." },
+} as const;
+
 function dynamicPrompt(service: string) {
   if (service === "Automation System") {
     return {
@@ -150,8 +156,16 @@ export function ContactForm() {
     <div className="grid gap-8 md:grid-cols-5">
       <form className="space-y-4 rounded-xl border bg-white p-6 md:col-span-3" onSubmit={handleFormSubmit}>
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold">Smart Lead Capture</h3>
+          <div>
+            <h3 className="text-xl font-semibold">Smart Lead Capture</h3>
+            <p className="mt-1 text-xs text-muted">Takes about 2-3 minutes</p>
+          </div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Step {step} of 3</p>
+        </div>
+
+        <div className="rounded-md border bg-surface px-3 py-2">
+          <p className="text-sm font-semibold">{stepMeta[step as 1 | 2 | 3].title}</p>
+          <p className="text-xs text-muted">{stepMeta[step as 1 | 2 | 3].helper}</p>
         </div>
 
         <div className="h-2 rounded-full bg-surface">
@@ -315,6 +329,16 @@ export function ContactForm() {
       </form>
 
       <aside className="space-y-6 rounded-xl border bg-surface p-6 md:col-span-2">
+        <div className="rounded-md border bg-white p-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">Need Help Choosing?</p>
+          <ul className="mt-2 space-y-2 text-sm text-muted">
+            <li>- Web Application: customer-facing platform or portal build.</li>
+            <li>- CMS System: content operations, publishing, and approvals.</li>
+            <li>- Automation System: repetitive admin and workflow bottlenecks.</li>
+            <li>- Brand Identity: trust, consistency, and conversion assets.</li>
+          </ul>
+        </div>
+
         <div>
           <h3 className="text-xl font-semibold">Fast Contact Options</h3>
           <p className="mt-2 text-sm text-muted">For immediate response, use WhatsApp or send us an email directly.</p>

@@ -42,10 +42,36 @@ export function CreatorProjectsList() {
 
   if (!projects.length) {
     if (error) {
-      return <p className="text-sm text-red-700">{error}</p>;
+      return (
+        <div className="rounded-xl border bg-white p-5">
+          <p className="text-sm text-red-700">{error}</p>
+          <Link href="/auth" className="mt-3 inline-block text-sm font-semibold text-accent hover:underline">
+            Sign in to continue
+          </Link>
+        </div>
+      );
     }
 
-    return <p className="text-sm text-muted">No creator projects yet. Generate from Web or Docs module first.</p>;
+    return (
+      <div className="rounded-xl border bg-white p-5">
+        <p className="text-sm font-semibold">No projects yet</p>
+        <p className="mt-1 text-sm text-muted">Choose how you want to start. Each option creates a versioned workspace automatically.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <Link href="/creator/web" className="rounded-md border bg-surface px-4 py-3 text-sm font-semibold transition hover:border-accent">
+            Start Website
+          </Link>
+          <Link href="/creator/docs" className="rounded-md border bg-surface px-4 py-3 text-sm font-semibold transition hover:border-accent">
+            Start Document
+          </Link>
+          <Link href="/creator/images" className="rounded-md border bg-surface px-4 py-3 text-sm font-semibold transition hover:border-accent">
+            Start Image Brief
+          </Link>
+          <Link href="/creator/consult" className="rounded-md border bg-surface px-4 py-3 text-sm font-semibold transition hover:border-accent">
+            Start Consulting Plan
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
