@@ -14,6 +14,8 @@ import { CustomerNeeds } from "@/components/sections/customer-needs";
 import { StructuredData } from "@/components/structured-data";
 import { FitChecker } from "@/components/interactive/fit-checker";
 import { RoleBasedCtas } from "@/components/sections/role-based-ctas";
+import { LaunchPlanner } from "@/components/interactive/launch-planner";
+import { HomepageFaq } from "@/components/sections/homepage-faq";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -37,6 +39,12 @@ export default function Home() {
     <>
       <StructuredData />
       <Hero />
+
+      <Section className="bg-white pt-0">
+        <Reveal>
+          <LaunchPlanner />
+        </Reveal>
+      </Section>
 
       <Section id="services-preview" className="bg-white">
         <Reveal>
@@ -182,6 +190,12 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </Section>
+
+      <Section className="bg-white pt-0">
+        <Reveal>
+          <HomepageFaq />
+        </Reveal>
       </Section>
 
       <Section id="contact" className="bg-white">
