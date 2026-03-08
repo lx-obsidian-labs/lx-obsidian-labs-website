@@ -18,6 +18,7 @@ import { LaunchPlanner } from "@/components/interactive/launch-planner";
 import { HomepageFaq } from "@/components/sections/homepage-faq";
 import { EngagementCenter } from "@/components/interactive/engagement-center";
 import { HomeCommandCenter } from "@/components/home/home-command-center";
+import { HomeValueStrip } from "@/components/home/home-value-strip";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -45,6 +46,12 @@ export default function Home() {
       <Section className="bg-white pt-0">
         <Reveal>
           <HomeCommandCenter />
+        </Reveal>
+      </Section>
+
+      <Section className="bg-surface pt-0">
+        <Reveal>
+          <HomeValueStrip />
         </Reveal>
       </Section>
 
@@ -151,11 +158,12 @@ export default function Home() {
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Call To Action</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to build your next digital system?</h2>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to move from idea to a shipped output?</h2>
+              <p className="mt-2 max-w-2xl text-sm text-zinc-300">Start with Creator if you want speed, or start a managed project brief if you want full delivery support.</p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href="/contact">Start Your Project</Link>
+                <Link href="/creator/agent">Run Agent Workspace</Link>
               </Button>
               <Button
                 asChild
@@ -163,7 +171,7 @@ export default function Home() {
                 variant="secondary"
                 className="w-full border-zinc-200 text-zinc-100 hover:bg-zinc-100 hover:text-[#111111] sm:w-auto"
               >
-                <Link href="/creator">Open Obsidian Creator</Link>
+                <Link href="/contact#start-form">Start Project Brief</Link>
               </Button>
             </div>
           </div>
@@ -216,7 +224,7 @@ export default function Home() {
         <Reveal>
           <div className="mb-8">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Contact</p>
-            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Tell us what you need, and we will map the best path forward.</h2>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Tell us what you need, and we will map your best start path in one response.</h2>
           </div>
         </Reveal>
         <ContactForm />

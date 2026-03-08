@@ -83,12 +83,15 @@ async function callJson(request: Request, path: string, payload: Record<string, 
 }
 
 export async function POST(request: Request) {
-  const unavailable = requireCreatorDatabase();
-  if (unavailable) return unavailable;
-
   try {
-    const auth = await requireCreatorUser(request);
-    if (auth.response) return auth.response;
+    const hasDatabase = Boolean(process.env.DATABASE_URL);
+    if (hasDatabase) {
+      const unavailable = requireCreatorDatabase();
+      if (unavailable) return unavailable;
+
+      const auth = await requireCreatorUser(request);
+      if (auth.response) return auth.response;
+    }
 
     const body = (await request.json()) as Input;
     const parsedInput = creatorAgentBuildSchema.safeParse(body);
@@ -230,6 +233,12 @@ suggestedMode ("web"|"docs"|"consult"|"mixed").`;
       }
 
       if (mode === "consult") {
+        if (!hasDatabase) {
+          failures.push({ mode: "consult", error: "Consult persistence requires DATABASE_URL." });
+          logs.push("Consult generation skipped: persistence disabled.");
+          continue;
+        }
+
         try {
           logs.push("Generating consulting project...");
           const data = await callJson(request, "/api/creator/projects", {

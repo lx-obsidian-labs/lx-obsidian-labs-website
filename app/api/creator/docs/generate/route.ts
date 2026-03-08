@@ -46,17 +46,23 @@ function fallback(body: Input): DocOutput {
 }
 
 export async function POST(request: Request) {
-  const unavailable = requireCreatorDatabase();
-  if (unavailable) return unavailable;
-
   try {
-    const auth = await requireCreatorUser(request);
-    if (auth.response) return auth.response;
+    const hasDatabase = Boolean(process.env.DATABASE_URL);
+
+    let authUserId: string | null = null;
+    if (hasDatabase) {
+      const unavailable = requireCreatorDatabase();
+      if (unavailable) return unavailable;
+
+      const auth = await requireCreatorUser(request);
+      if (auth.response) return auth.response;
+      authUserId = auth.user.id;
+    }
 
     const idem = await claimIdempotencyKey({
       namespace: "creator_docs_generate",
       key: request.headers.get("x-idempotency-key"),
-      identifier: auth.user.id,
+      identifier: hasDatabase ? "db" : "transient",
       ttlSec: 300,
     });
     if (!idem.accepted) {
@@ -120,9 +126,17 @@ Return strict JSON with keys: title (string), outline (string[]), contentMarkdow
       }
     }
 
+    if (!hasDatabase || !authUserId) {
+      return NextResponse.json({
+        projectId: null,
+        persistence: "disabled",
+        output,
+      });
+    }
+
     const project = input.projectId
       ? await (async () => {
-          const owned = await requireOwnedProject(input.projectId!, auth.user.id);
+          const owned = await requireOwnedProject(input.projectId!, authUserId);
           if (!owned) {
             return null;
           }
@@ -130,7 +144,7 @@ Return strict JSON with keys: title (string), outline (string[]), contentMarkdow
         })()
       : await prisma.project.create({
           data: {
-            userId: auth.user.id,
+            userId: authUserId,
             type: "docs",
             title: output.title,
             description: `Generated ${input.documentType} for ${input.companyName}`,

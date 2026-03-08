@@ -57,14 +57,16 @@ export function AgentStudio() {
   const [audience, setAudience] = useState("business decision makers");
   const [depth, setDepth] = useState<"quick" | "standard" | "deep">("standard");
   const [forcedModes, setForcedModes] = useState<AgentMode[]>([]);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
     async function loadProjects() {
       const res = await fetch("/api/creator/projects", { cache: "no-store" });
       const data = (await res.json().catch(() => null)) as { projects?: ProjectCard[]; error?: string } | null;
       if (!res.ok) {
+        if ((data?.error || "").toLowerCase().includes("persistence is not configured")) {
+          setStatus("Persistence is disabled. Agent can still generate outputs in transient mode.");
+          return;
+        }
         setError(data?.error || "Unable to load creator projects.");
         return;
       }
@@ -74,15 +76,6 @@ export function AgentStudio() {
     }
 
     void loadProjects();
-  }, []);
-
-  useEffect(() => {
-    void (async () => {
-      const res = await fetch("/api/auth/session", { cache: "no-store" });
-      const data = (await res.json().catch(() => null)) as { authenticated?: boolean } | null;
-      setAuthenticated(Boolean(data?.authenticated));
-      setAuthChecked(true);
-    })();
   }, []);
 
   const progress = useMemo(() => {
@@ -357,11 +350,10 @@ export function AgentStudio() {
           <Button onClick={runAgent} className="w-full" disabled={loading || objective.trim().length < 8}>
             <Play className="mr-2 h-4 w-4" /> {loading ? "Running..." : "Plan Only"}
           </Button>
-          <Button onClick={runAndBuild} className="w-full" disabled={loading || objective.trim().length < 8 || !authenticated}>
+          <Button onClick={runAndBuild} className="w-full" disabled={loading || objective.trim().length < 8}>
             <Play className="mr-2 h-4 w-4" /> {loading ? "Building..." : "Run + Build"}
           </Button>
         </div>
-        {authChecked && !authenticated ? <p className="text-xs text-red-700">Sign in at <Link href="/auth" className="font-semibold underline">/auth</Link> to generate and save agent outputs.</p> : null}
         {status ? <p className="text-xs text-muted">{status}</p> : null}
         {error ? <p className="text-sm text-red-700">{error}</p> : null}
         <div className="max-h-64 space-y-2 overflow-auto rounded-md border bg-surface p-3">
@@ -446,10 +438,10 @@ export function AgentStudio() {
           <Button variant="secondary" onClick={executeWeb} disabled={loading || !objective.trim()}>
             <FileCode2 className="mr-2 h-4 w-4" /> Build Web
           </Button>
-          <Button variant="secondary" onClick={executeDocs} disabled={loading || !objective.trim() || !authenticated}>
+          <Button variant="secondary" onClick={executeDocs} disabled={loading || !objective.trim()}>
             <FileText className="mr-2 h-4 w-4" /> Build Doc
           </Button>
-          <Button onClick={checkpoint} className="sm:col-span-2" disabled={!plan || !authenticated}>
+          <Button onClick={checkpoint} className="sm:col-span-2" disabled={!plan}>
             <Save className="mr-2 h-4 w-4" /> Save Checkpoint
           </Button>
         </div>

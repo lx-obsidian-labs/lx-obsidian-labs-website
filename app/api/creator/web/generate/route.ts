@@ -69,21 +69,27 @@ function fallback(prompt: string): WebOutput {
 }
 
 export async function POST(request: Request) {
-  const unavailable = requireCreatorDatabase();
-  if (unavailable) return unavailable;
-
   try {
-    const auth = await requireCreatorUser(request);
-    if (auth.response) return auth.response;
+    const hasDatabase = Boolean(process.env.DATABASE_URL);
 
     const idem = await claimIdempotencyKey({
       namespace: "creator_web_generate",
       key: request.headers.get("x-idempotency-key"),
-      identifier: auth.user.id,
+      identifier: hasDatabase ? "db" : "transient",
       ttlSec: 300,
     });
     if (!idem.accepted) {
       return NextResponse.json({ error: "Duplicate generation request detected. Please wait before retrying." }, { status: 409 });
+    }
+
+    let authUserId: string | null = null;
+    if (hasDatabase) {
+      const unavailable = requireCreatorDatabase();
+      if (unavailable) return unavailable;
+
+      const auth = await requireCreatorUser(request);
+      if (auth.response) return auth.response;
+      authUserId = auth.user.id;
     }
 
     const body = (await request.json()) as Input;
@@ -149,9 +155,21 @@ export async function POST(request: Request) {
       }
     }
 
+    if (!hasDatabase || !authUserId) {
+      return NextResponse.json({
+        projectId: null,
+        persistence: "disabled",
+        output,
+        preview: {
+          mode: "structured",
+          content: output,
+        },
+      });
+    }
+
     const project = input.projectId
       ? await (async () => {
-          const owned = await requireOwnedProject(input.projectId!, auth.user.id);
+          const owned = await requireOwnedProject(input.projectId!, authUserId);
           if (!owned) {
             return null;
           }
@@ -159,7 +177,7 @@ export async function POST(request: Request) {
         })()
       : await prisma.project.create({
           data: {
-            userId: auth.user.id,
+            userId: authUserId,
             type: "web",
             title: output.projectName,
             description: prompt,

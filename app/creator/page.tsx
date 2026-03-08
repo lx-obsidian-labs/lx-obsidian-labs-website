@@ -42,6 +42,8 @@ const guidedStarts = [
 ];
 
 export default function CreatorPage() {
+  const persistenceEnabled = Boolean(process.env.DATABASE_URL);
+
   return (
     <>
       <Section className="bg-[#0b0b0d] py-20 text-white">
@@ -57,6 +59,11 @@ export default function CreatorPage() {
             </Link>
           ))}
         </div>
+        {!persistenceEnabled ? (
+          <p className="mt-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+            Creator is running in transient mode. You can generate outputs, but project saving is disabled until DATABASE_URL is configured.
+          </p>
+        ) : null}
       </Section>
 
       <Section className="bg-white pb-8">

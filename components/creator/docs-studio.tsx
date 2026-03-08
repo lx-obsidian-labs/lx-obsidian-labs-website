@@ -22,8 +22,9 @@ export function DocsStudio() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [stage, setStage] = useState("");
-  const [authChecked, setAuthChecked] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [persistenceNotice, setPersistenceNotice] = useState("");
+  const [persistenceEnabled, setPersistenceEnabled] = useState<boolean | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -40,16 +41,34 @@ export function DocsStudio() {
 
   useEffect(() => {
     void (async () => {
-      const res = await fetch("/api/auth/session", { cache: "no-store" });
-      const data = (await res.json().catch(() => null)) as { authenticated?: boolean } | null;
-      setAuthenticated(Boolean(data?.authenticated));
-      setAuthChecked(true);
+      const res = await fetch("/api/creator/status", { cache: "no-store" });
+      const data = (await res.json().catch(() => null)) as { persistenceEnabled?: boolean } | null;
+      setPersistenceEnabled(Boolean(data?.persistenceEnabled));
     })();
   }, []);
+
+  const copyOutput = async () => {
+    if (!output?.contentMarkdown) return;
+    await navigator.clipboard.writeText(output.contentMarkdown);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+
+  const downloadOutput = () => {
+    if (!output?.contentMarkdown) return;
+    const blob = new Blob([output.contentMarkdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(output.title || "document").replace(/\s+/g, "-").toLowerCase()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const generate = async () => {
     setLoading(true);
     setError("");
+    setPersistenceNotice("");
     setStage("Preparing document structure...");
     try {
       const res = await fetch("/api/creator/docs/generate", {
@@ -59,7 +78,7 @@ export function DocsStudio() {
       });
 
       const data = (await res.json().catch(() => null)) as
-        | { output?: DocOutput; projectId?: string; error?: string }
+        | { output?: DocOutput; projectId?: string | null; persistence?: string; error?: string }
         | null;
       if (!res.ok || !data || data.error || !data.output) {
         throw new Error(data?.error || "Document generation failed");
@@ -69,6 +88,9 @@ export function DocsStudio() {
 
       setOutput(outputData);
       if (data.projectId) setProjectId(data.projectId);
+      if (!data.projectId && data.persistence === "disabled") {
+        setPersistenceNotice("Running in transient mode: document is generated but not saved to Projects until DATABASE_URL is configured.");
+      }
       setStage("Document ready.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Document generation failed");
@@ -96,11 +118,12 @@ export function DocsStudio() {
           <input className="h-11 rounded-md border px-3 text-sm md:col-span-2" placeholder="Key points (comma separated)" value={keyPoints} onChange={(e) => setKeyPoints(e.target.value)} />
         </div>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button onClick={generate} disabled={loading || !companyName.trim() || !authenticated}>{loading ? "Generating..." : "Generate Document"}</Button>
+          <Button onClick={generate} disabled={loading || !companyName.trim()}>{loading ? "Generating..." : "Generate Document"}</Button>
           <Button asChild variant="secondary"><Link href="/creator/projects">View Saved Projects</Link></Button>
         </div>
-        {authChecked && !authenticated ? <p className="mt-3 text-sm text-red-700">Sign in at <Link href="/auth" className="font-semibold underline">/auth</Link> to generate and save projects.</p> : null}
+        {persistenceEnabled === false ? <p className="mt-3 text-xs text-amber-700">Transient mode: generation works, project saving is currently disabled.</p> : null}
         {loading && stage ? <p className="mt-3 text-sm text-muted">{stage}</p> : null}
+        {persistenceNotice ? <p className="mt-3 text-sm text-amber-700">{persistenceNotice}</p> : null}
         {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
       </div>
 
@@ -115,6 +138,10 @@ export function DocsStudio() {
             <summary className="cursor-pointer font-semibold">Content</summary>
             <pre className="mt-2 whitespace-pre-wrap text-xs text-muted">{output.contentMarkdown}</pre>
           </details>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button variant="secondary" className="h-8 px-3 text-xs" onClick={copyOutput}>{copied ? "Copied" : "Copy Markdown"}</Button>
+            <Button className="h-8 px-3 text-xs" onClick={downloadOutput}>Download .md</Button>
+          </div>
           {projectId ? (
             <Link href={`/creator/projects/${projectId}`} className="mt-4 inline-block text-sm font-semibold text-accent hover:underline">Open Project Workspace</Link>
           ) : null}
