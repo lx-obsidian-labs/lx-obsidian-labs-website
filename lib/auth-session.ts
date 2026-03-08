@@ -17,11 +17,13 @@ function base64UrlDecode(input: string) {
 }
 
 function getAuthSecret() {
-  return process.env.AUTH_SECRET || "lx-obsidian-dev-auth-secret";
+  return process.env.AUTH_SECRET?.trim() || null;
 }
 
 function sign(value: string) {
-  return createHmac("sha256", getAuthSecret()).update(value).digest("base64url");
+  const secret = getAuthSecret();
+  if (!secret) return null;
+  return createHmac("sha256", secret).update(value).digest("base64url");
 }
 
 function parseCookie(cookieHeader: string | null, name: string) {
@@ -39,8 +41,14 @@ function parseCookie(cookieHeader: string | null, name: string) {
 }
 
 export function createSessionToken(payload: Omit<SessionPayload, "iat">) {
+  if (!hasAuthSecret()) {
+    throw new Error("AUTH_SECRET is required for session signing.");
+  }
   const body = base64UrlEncode(JSON.stringify({ ...payload, iat: Date.now() }));
   const signature = sign(body);
+  if (!signature) {
+    throw new Error("Session signing unavailable.");
+  }
   return `${body}.${signature}`;
 }
 
@@ -52,6 +60,7 @@ export function readSessionFromRequest(request: Request) {
   if (!body || !signature) return null;
 
   const expected = sign(body);
+  if (!expected) return null;
   const a = Buffer.from(signature);
   const b = Buffer.from(expected);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
@@ -67,4 +76,8 @@ export function readSessionFromRequest(request: Request) {
 
 export function getSessionCookieName() {
   return SESSION_COOKIE;
+}
+
+export function hasAuthSecret() {
+  return Boolean(getAuthSecret());
 }

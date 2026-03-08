@@ -4,6 +4,8 @@ import { z } from "zod";
 import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
 import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
+import { claimIdempotencyKey } from "@/lib/idempotency";
+import { fetchJsonWithRetry } from "@/lib/http-client";
 
 type Input = {
   projectId?: string;
@@ -56,6 +58,16 @@ export async function POST(request: Request) {
     const auth = await requireCreatorUser(request);
     if (auth.response) return auth.response;
 
+    const idem = await claimIdempotencyKey({
+      namespace: "creator_edit",
+      key: request.headers.get("x-idempotency-key"),
+      identifier: auth.user.id,
+      ttlSec: 180,
+    });
+    if (!idem.accepted) {
+      return NextResponse.json({ error: "Duplicate edit request detected. Please wait before retrying." }, { status: 409 });
+    }
+
     const body = (await request.json()) as Input;
 
     if (!body.projectId || !body.instruction || body.instruction.trim().length < 4) {
@@ -90,30 +102,30 @@ export async function POST(request: Request) {
     const changes: string[] = [`Applied instruction: ${body.instruction}`];
 
     if (apiKey) {
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.2,
-          max_tokens: 900,
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: "Edit artifacts safely. Return strict JSON with keys updatedArtifact and changes (string[])." },
-            {
-              role: "user",
-              content: `Mode: ${mode}\nInstruction: ${body.instruction}\nCurrent artifact JSON:\n${JSON.stringify(sourceArtifact.content)}`,
-            },
-          ],
-        }),
-      });
-
-      if (response.ok) {
-        const data = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
-        const raw = data.choices?.[0]?.message?.content || "{}";
+      try {
+        const { data } = await fetchJsonWithRetry("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          timeoutMs: 20000,
+          retries: 1,
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: {
+            model,
+            temperature: 0.2,
+            max_tokens: 900,
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: "Edit artifacts safely. Return strict JSON with keys updatedArtifact and changes (string[])." },
+              {
+                role: "user",
+                content: `Mode: ${mode}\nInstruction: ${body.instruction}\nCurrent artifact JSON:\n${JSON.stringify(sourceArtifact.content)}`,
+              },
+            ],
+          },
+        });
+        const typed = data as { choices?: Array<{ message?: { content?: string } }> };
+        const raw = typed.choices?.[0]?.message?.content || "{}";
         const parsed = editResponseSchema.safeParse(parseJsonSafe(raw));
         if (parsed.success) {
           if (parsed.data.updatedArtifact) {
@@ -123,6 +135,8 @@ export async function POST(request: Request) {
             changes.splice(0, changes.length, ...parsed.data.changes);
           }
         }
+      } catch {
+        // keep fallback edit when provider fails
       }
     }
 

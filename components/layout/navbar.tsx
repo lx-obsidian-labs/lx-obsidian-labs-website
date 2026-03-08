@@ -41,9 +41,6 @@ export function Navbar() {
               </Link>
             );
           })}
-          <Link href="/creator" className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-semibold text-[#111111] hover:border-accent hover:text-accent">
-            Obsidian Creator
-          </Link>
           <Button asChild size="default">
             <Link href="/contact">Start Your Project</Link>
           </Button>

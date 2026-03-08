@@ -24,8 +24,8 @@ export function Hero() {
             size="lg"
             className="w-full border-zinc-200 text-zinc-200 hover:bg-zinc-200 hover:text-[#111111] sm:w-auto"
           >
-            <Link href="/services" className="inline-flex items-center gap-2">
-              View Services <ArrowRight className="h-4 w-4" />
+            <Link href="/creator" className="inline-flex items-center gap-2">
+              Try Obsidian Creator <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>

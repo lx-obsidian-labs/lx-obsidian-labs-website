@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { requireOwnedProject } from "@/lib/creator-db";
+import { claimIdempotencyKey } from "@/lib/idempotency";
 import { prisma } from "@/lib/prisma";
 
 type Params = { params: Promise<{ id: string }> };
@@ -46,6 +47,16 @@ export async function POST(request: Request, { params }: Params) {
   try {
     const auth = await requireCreatorUser(request);
     if (auth.response) return auth.response;
+
+    const idem = await claimIdempotencyKey({
+      namespace: "creator_artifact_create",
+      key: request.headers.get("x-idempotency-key"),
+      identifier: auth.user.id,
+      ttlSec: 300,
+    });
+    if (!idem.accepted) {
+      return NextResponse.json({ error: "Duplicate artifact request detected. Please wait before retrying." }, { status: 409 });
+    }
 
     const { id } = await params;
     const owned = await requireOwnedProject(id, auth.user.id);

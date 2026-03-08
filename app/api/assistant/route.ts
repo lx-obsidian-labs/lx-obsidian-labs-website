@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { companyContent } from "@/content/site";
 import { industrySolutions, processSteps, services } from "@/lib/data";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { fetchJsonWithRetry } from "@/lib/http-client";
 
 type AssistantMessage = {
   role: "user" | "assistant";
@@ -105,43 +106,44 @@ Be practical, concise, and conversion-focused.
 ${buildKnowledgePrompt()}`;
 
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://lxobsidianlabs.com",
-          "X-Title": "LX Obsidian Labs Website",
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.4,
-          max_tokens: 220,
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...toOpenRouterMessages(safeMessages),
-          ],
-        }),
-      });
+      try {
+        const { data } = await fetchJsonWithRetry("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          timeoutMs: 18000,
+          retries: 0,
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "HTTP-Referer": "https://lxobsidianlabs.com",
+            "X-Title": "LX Obsidian Labs Website",
+          },
+          body: {
+            model,
+            temperature: 0.4,
+            max_tokens: 220,
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...toOpenRouterMessages(safeMessages),
+            ],
+          },
+        });
 
-      if (!res.ok) {
+        const typed = data as {
+          choices?: Array<{ message?: { content?: string | Array<{ text?: string }> } }>;
+        };
+
+        const content = typed.choices?.[0]?.message?.content;
+        const reply =
+          typeof content === "string"
+            ? content
+            : Array.isArray(content)
+              ? content.map((part) => part.text || "").join(" ").trim()
+              : "";
+
+        if (reply) {
+          return NextResponse.json({ reply });
+        }
+      } catch {
         continue;
-      }
-
-      const data = (await res.json()) as {
-        choices?: Array<{ message?: { content?: string | Array<{ text?: string }> } }>;
-      };
-
-      const content = data.choices?.[0]?.message?.content;
-      const reply =
-        typeof content === "string"
-          ? content
-          : Array.isArray(content)
-            ? content.map((part) => part.text || "").join(" ").trim()
-            : "";
-
-      if (reply) {
-        return NextResponse.json({ reply });
       }
     }
 

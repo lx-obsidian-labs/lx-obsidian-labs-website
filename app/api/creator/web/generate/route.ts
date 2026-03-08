@@ -3,6 +3,9 @@ import { z } from "zod";
 import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
 import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
+import { claimIdempotencyKey } from "@/lib/idempotency";
+import { fetchJsonWithRetry } from "@/lib/http-client";
+import { creatorWebGenerateSchema } from "@/lib/validation";
 
 type Input = {
   projectId?: string;
@@ -73,12 +76,23 @@ export async function POST(request: Request) {
     const auth = await requireCreatorUser(request);
     if (auth.response) return auth.response;
 
-    const body = (await request.json()) as Input;
-    const prompt = (body.prompt || "").trim();
-
-    if (prompt.length < 8) {
-      return NextResponse.json({ error: "Please provide a clear website prompt." }, { status: 400 });
+    const idem = await claimIdempotencyKey({
+      namespace: "creator_web_generate",
+      key: request.headers.get("x-idempotency-key"),
+      identifier: auth.user.id,
+      ttlSec: 300,
+    });
+    if (!idem.accepted) {
+      return NextResponse.json({ error: "Duplicate generation request detected. Please wait before retrying." }, { status: 409 });
     }
+
+    const body = (await request.json()) as Input;
+    const parsedInput = creatorWebGenerateSchema.safeParse(body);
+    if (!parsedInput.success) {
+      return NextResponse.json({ error: "Invalid website generation payload." }, { status: 400 });
+    }
+    const input = parsedInput.data;
+    const prompt = input.prompt;
 
     const apiKey = process.env.OPENROUTER_API_KEY;
     const model = process.env.OPENROUTER_MODEL_CODE || process.env.OPENROUTER_MODEL || "qwen/qwen3-coder:free";
@@ -86,34 +100,35 @@ export async function POST(request: Request) {
     let output: WebOutput = fallback(prompt);
 
     if (apiKey) {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.2,
-          max_tokens: 1200,
-          response_format: { type: "json_object" },
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a website generator. Output strict JSON with keys: projectName, sitemap, sectionsByPage, components, metadata, codeDraft.",
-            },
-            {
-              role: "user",
-              content: `Prompt: ${prompt}\nIndustry: ${body.industry || "General"}\nStyle: ${body.style || "Modern"}\nPages: ${(body.pages || ["home", "services", "contact"]).join(", ")}\nCTA: ${body.primaryCta || "Start Your Project"}`,
-            },
-          ],
-        }),
-      });
+      try {
+        const { data } = await fetchJsonWithRetry("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          timeoutMs: 22000,
+          retries: 1,
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: {
+            model,
+            temperature: 0.2,
+            max_tokens: 1200,
+            response_format: { type: "json_object" },
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a website generator. Output strict JSON with keys: projectName, sitemap, sectionsByPage, components, metadata, codeDraft.",
+              },
+              {
+                role: "user",
+                content: `Prompt: ${prompt}\nIndustry: ${input.industry || "General"}\nStyle: ${input.style || "Modern"}\nPages: ${(input.pages || ["home", "services", "contact"]).join(", ")}\nCTA: ${input.primaryCta || "Start Your Project"}`,
+              },
+            ],
+          },
+        });
 
-      if (res.ok) {
-        const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-        const raw = data.choices?.[0]?.message?.content || "{}";
+        const typed = data as { choices?: Array<{ message?: { content?: string } }> };
+        const raw = typed.choices?.[0]?.message?.content || "{}";
         const candidate = parseJsonSafe(raw);
         const parsed = webOutputSchema.safeParse(candidate);
         if (parsed.success) {
@@ -129,16 +144,18 @@ export async function POST(request: Request) {
             codeDraft: parsed.data.codeDraft || output.codeDraft,
           };
         }
+      } catch {
+        // Keep fallback output when provider fails
       }
     }
 
-    const project = body.projectId
+    const project = input.projectId
       ? await (async () => {
-          const owned = await requireOwnedProject(body.projectId!, auth.user.id);
+          const owned = await requireOwnedProject(input.projectId!, auth.user.id);
           if (!owned) {
             return null;
           }
-          return prisma.project.update({ where: { id: body.projectId }, data: { updatedAt: new Date() } });
+          return prisma.project.update({ where: { id: input.projectId }, data: { updatedAt: new Date() } });
         })()
       : await prisma.project.create({
           data: {

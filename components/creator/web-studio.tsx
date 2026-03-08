@@ -22,6 +22,8 @@ export function WebStudio() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [stage, setStage] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -32,6 +34,15 @@ export function WebStudio() {
     if (presetPrompt) setPrompt(presetPrompt);
     if (presetIndustry) setIndustry(presetIndustry);
     if (presetStyle) setStyle(presetStyle);
+  }, []);
+
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch("/api/auth/session", { cache: "no-store" });
+      const data = (await res.json().catch(() => null)) as { authenticated?: boolean } | null;
+      setAuthenticated(Boolean(data?.authenticated));
+      setAuthChecked(true);
+    })();
   }, []);
 
   const generate = async () => {
@@ -73,9 +84,10 @@ export function WebStudio() {
           <input className="h-11 rounded-md border px-3 text-sm md:col-span-2" placeholder="Style" value={style} onChange={(e) => setStyle(e.target.value)} />
         </div>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button onClick={generate} disabled={loading || prompt.trim().length < 8}>{loading ? "Generating..." : "Generate Build Plan"}</Button>
+          <Button onClick={generate} disabled={loading || prompt.trim().length < 8 || !authenticated}>{loading ? "Generating..." : "Generate Build Plan"}</Button>
           <Button asChild variant="secondary"><Link href="/creator/projects">View Saved Projects</Link></Button>
         </div>
+        {authChecked && !authenticated ? <p className="mt-3 text-sm text-red-700">Sign in at <Link href="/auth" className="font-semibold underline">/auth</Link> to generate and save projects.</p> : null}
         {loading && stage ? <p className="mt-3 text-sm text-muted">{stage}</p> : null}
         {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
       </div>

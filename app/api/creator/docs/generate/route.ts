@@ -3,6 +3,9 @@ import { z } from "zod";
 import { creatorErrorResponse, requireCreatorDatabase, requireCreatorUser } from "@/lib/creator-api";
 import { prisma } from "@/lib/prisma";
 import { nextArtifactVersion, requireOwnedProject } from "@/lib/creator-db";
+import { claimIdempotencyKey } from "@/lib/idempotency";
+import { fetchJsonWithRetry } from "@/lib/http-client";
+import { creatorDocsGenerateSchema } from "@/lib/validation";
 
 type Input = {
   projectId?: string;
@@ -50,48 +53,59 @@ export async function POST(request: Request) {
     const auth = await requireCreatorUser(request);
     if (auth.response) return auth.response;
 
-    const body = (await request.json()) as Input;
-
-    if (!body.documentType || !body.companyName) {
-      return NextResponse.json({ error: "Document type and company name are required." }, { status: 400 });
+    const idem = await claimIdempotencyKey({
+      namespace: "creator_docs_generate",
+      key: request.headers.get("x-idempotency-key"),
+      identifier: auth.user.id,
+      ttlSec: 300,
+    });
+    if (!idem.accepted) {
+      return NextResponse.json({ error: "Duplicate generation request detected. Please wait before retrying." }, { status: 409 });
     }
+
+    const body = (await request.json()) as Input;
+    const parsedInput = creatorDocsGenerateSchema.safeParse(body);
+    if (!parsedInput.success) {
+      return NextResponse.json({ error: "Invalid document generation payload." }, { status: 400 });
+    }
+    const input = parsedInput.data;
 
     const apiKey = process.env.OPENROUTER_API_KEY;
     const model = process.env.OPENROUTER_MODEL_DOCS || process.env.OPENROUTER_MODEL || "openai/gpt-oss-120b:free";
 
-    let output = fallback(body);
+    let output = fallback(input);
 
     if (apiKey) {
-      const prompt = `Generate a professional ${body.documentType} in markdown.
-Company: ${body.companyName}
-Industry: ${body.industry || "General"}
-Tone: ${body.tone || "Corporate"}
-Goal: ${body.goal || "Not provided"}
-Key points: ${(body.keyPoints || []).join(", ") || "Not provided"}
+      const prompt = `Generate a professional ${input.documentType} in markdown.
+Company: ${input.companyName}
+Industry: ${input.industry || "General"}
+Tone: ${input.tone || "Corporate"}
+Goal: ${input.goal || "Not provided"}
+Key points: ${(input.keyPoints || []).join(", ") || "Not provided"}
 
 Return strict JSON with keys: title (string), outline (string[]), contentMarkdown (string).`;
 
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.3,
-          max_tokens: 1200,
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: "You output valid compact JSON only." },
-            { role: "user", content: prompt },
-          ],
-        }),
-      });
-
-      if (res.ok) {
-        const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-        const raw = data.choices?.[0]?.message?.content || "{}";
+      try {
+        const { data } = await fetchJsonWithRetry("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          timeoutMs: 22000,
+          retries: 1,
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: {
+            model,
+            temperature: 0.3,
+            max_tokens: 1200,
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: "You output valid compact JSON only." },
+              { role: "user", content: prompt },
+            ],
+          },
+        });
+        const typed = data as { choices?: Array<{ message?: { content?: string } }> };
+        const raw = typed.choices?.[0]?.message?.content || "{}";
         const candidate = parseJsonSafe(raw);
         const parsed = docOutputSchema.safeParse(candidate);
         if (parsed.success) {
@@ -101,23 +115,25 @@ Return strict JSON with keys: title (string), outline (string[]), contentMarkdow
             contentMarkdown: parsed.data.contentMarkdown || output.contentMarkdown,
           };
         }
+      } catch {
+        // Keep fallback output when provider fails
       }
     }
 
-    const project = body.projectId
+    const project = input.projectId
       ? await (async () => {
-          const owned = await requireOwnedProject(body.projectId!, auth.user.id);
+          const owned = await requireOwnedProject(input.projectId!, auth.user.id);
           if (!owned) {
             return null;
           }
-          return prisma.project.update({ where: { id: body.projectId }, data: { updatedAt: new Date() } });
+          return prisma.project.update({ where: { id: input.projectId }, data: { updatedAt: new Date() } });
         })()
       : await prisma.project.create({
           data: {
             userId: auth.user.id,
             type: "docs",
             title: output.title,
-            description: `Generated ${body.documentType} for ${body.companyName}`,
+            description: `Generated ${input.documentType} for ${input.companyName}`,
           },
         });
 

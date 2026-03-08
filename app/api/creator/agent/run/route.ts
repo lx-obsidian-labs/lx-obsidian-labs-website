@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { fetchJsonWithRetry } from "@/lib/http-client";
 
 type Input = {
   objective?: string;
@@ -61,29 +62,31 @@ summary (string),
 steps (string[] max 8),
 suggestedMode ("web"|"docs"|"consult"|"mixed").`;
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.2,
-        max_tokens: 450,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: "You are an execution planner for an app-building agent. Output valid compact JSON only." },
-          { role: "user", content: prompt },
-        ],
-      }),
-    });
-
-    if (!res.ok) {
+    let data: { choices?: Array<{ message?: { content?: string } }> } | null = null;
+    try {
+      const response = await fetchJsonWithRetry("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        timeoutMs: 18000,
+        retries: 1,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: {
+          model,
+          temperature: 0.2,
+          max_tokens: 450,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: "You are an execution planner for an app-building agent. Output valid compact JSON only." },
+            { role: "user", content: prompt },
+          ],
+        },
+      });
+      data = response.data as { choices?: Array<{ message?: { content?: string } }> };
+    } catch {
       return NextResponse.json({ ...fallback(objective, workspaceType), mode: "fallback" });
     }
 
-    const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     const raw = data.choices?.[0]?.message?.content || "{}";
     const parsed = planSchema.safeParse(parseJsonSafe(raw));
     const base = fallback(objective, workspaceType);

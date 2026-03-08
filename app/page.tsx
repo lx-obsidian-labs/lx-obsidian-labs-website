@@ -16,6 +16,7 @@ import { FitChecker } from "@/components/interactive/fit-checker";
 import { RoleBasedCtas } from "@/components/sections/role-based-ctas";
 import { LaunchPlanner } from "@/components/interactive/launch-planner";
 import { HomepageFaq } from "@/components/sections/homepage-faq";
+import { EngagementCenter } from "@/components/interactive/engagement-center";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -155,7 +156,7 @@ export default function Home() {
                 variant="secondary"
                 className="w-full border-zinc-200 text-zinc-100 hover:bg-zinc-100 hover:text-[#111111] sm:w-auto"
               >
-                <Link href="/lab">Explore The Lab</Link>
+                <Link href="/creator">Open Obsidian Creator</Link>
               </Button>
             </div>
           </div>
@@ -195,6 +196,12 @@ export default function Home() {
       <Section className="bg-white pt-0">
         <Reveal>
           <HomepageFaq />
+        </Reveal>
+      </Section>
+
+      <Section className="bg-surface pt-0">
+        <Reveal>
+          <EngagementCenter />
         </Reveal>
       </Section>
 

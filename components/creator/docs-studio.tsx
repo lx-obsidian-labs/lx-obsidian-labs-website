@@ -22,6 +22,8 @@ export function DocsStudio() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [stage, setStage] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -34,6 +36,15 @@ export function DocsStudio() {
     if (presetCompany) setCompanyName(presetCompany);
     if (presetTone) setTone(presetTone);
     if (presetGoal) setGoal(presetGoal);
+  }, []);
+
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch("/api/auth/session", { cache: "no-store" });
+      const data = (await res.json().catch(() => null)) as { authenticated?: boolean } | null;
+      setAuthenticated(Boolean(data?.authenticated));
+      setAuthChecked(true);
+    })();
   }, []);
 
   const generate = async () => {
@@ -85,9 +96,10 @@ export function DocsStudio() {
           <input className="h-11 rounded-md border px-3 text-sm md:col-span-2" placeholder="Key points (comma separated)" value={keyPoints} onChange={(e) => setKeyPoints(e.target.value)} />
         </div>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button onClick={generate} disabled={loading || !companyName.trim()}>{loading ? "Generating..." : "Generate Document"}</Button>
+          <Button onClick={generate} disabled={loading || !companyName.trim() || !authenticated}>{loading ? "Generating..." : "Generate Document"}</Button>
           <Button asChild variant="secondary"><Link href="/creator/projects">View Saved Projects</Link></Button>
         </div>
+        {authChecked && !authenticated ? <p className="mt-3 text-sm text-red-700">Sign in at <Link href="/auth" className="font-semibold underline">/auth</Link> to generate and save projects.</p> : null}
         {loading && stage ? <p className="mt-3 text-sm text-muted">{stage}</p> : null}
         {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
       </div>

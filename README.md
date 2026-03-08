@@ -37,6 +37,8 @@ Copy `.env.example` to `.env.local` and set values as needed:
 RESEND_API_KEY=
 LEAD_TO_EMAIL=
 LEAD_WEBHOOK_URL=
+FEEDBACK_WEBHOOK_URL=
+NEWSLETTER_WEBHOOK_URL=
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL=stepfun/step-3.5-flash:free
 OPENROUTER_MODEL_CODE=qwen/qwen3-coder:free
@@ -52,6 +54,8 @@ AUTH_SECRET=
 
 - `RESEND_API_KEY` + `LEAD_TO_EMAIL`: email notifications for new leads
 - `LEAD_WEBHOOK_URL`: optional webhook sink for lead rows (recommended: Baserow webhook/n8n workflow)
+- `FEEDBACK_WEBHOOK_URL`: optional webhook for site ratings and quick emails
+- `NEWSLETTER_WEBHOOK_URL`: optional webhook for newsletter subscriptions (falls back to feedback webhook)
 - `OPENROUTER_API_KEY`: server-side key for AI assistant endpoint (`/api/assistant`)
 - `OPENROUTER_MODEL`: optional model override for OpenRouter chat completions
 - `OPENROUTER_MODEL_CODE`: optional model override for Creator web/code generation

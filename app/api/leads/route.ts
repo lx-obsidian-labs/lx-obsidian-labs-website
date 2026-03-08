@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { claimIdempotencyKey } from "@/lib/idempotency";
+import { fetchJsonWithRetry } from "@/lib/http-client";
+import { createRequestContext, logError, logInfo, withRequestId } from "@/lib/server-observability";
 import { leadPayloadSchema } from "@/lib/validation";
 import { scoreLead } from "@/lib/lead-scoring";
 
@@ -63,9 +66,20 @@ function buildWhatsAppUrl(
 }
 
 export async function POST(request: Request) {
+  const ctx = createRequestContext(request, "/api/leads");
   try {
     const rawPayload = (await request.json()) as LeadPayload;
     const ip = getClientIp(request);
+
+    const idem = await claimIdempotencyKey({
+      namespace: "leads",
+      key: request.headers.get("x-idempotency-key"),
+      identifier: ip,
+      ttlSec: 600,
+    });
+    if (!idem.accepted) {
+      return withRequestId(NextResponse.json({ error: "Duplicate submission detected. Please wait before retrying." }, { status: 409 }), ctx);
+    }
 
     const limiter = await rateLimit({
       namespace: "leads",
@@ -75,12 +89,12 @@ export async function POST(request: Request) {
     });
 
     if (!limiter.success) {
-      return NextResponse.json({ error: "Too many submissions. Please try again later." }, { status: 429 });
+      return withRequestId(NextResponse.json({ error: "Too many submissions. Please try again later." }, { status: 429 }), ctx);
     }
 
     const parsed = leadPayloadSchema.safeParse(rawPayload);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid submission payload" }, { status: 400 });
+      return withRequestId(NextResponse.json({ error: "Invalid submission payload" }, { status: 400 }), ctx);
     }
 
     const payload = parsed.data;
@@ -89,7 +103,7 @@ export async function POST(request: Request) {
     if (typeof payload.startedAt === "number") {
       const elapsedMs = Date.now() - payload.startedAt;
       if (elapsedMs < 2500) {
-        return NextResponse.json({ error: "Submission too fast" }, { status: 400 });
+        return withRequestId(NextResponse.json({ error: "Submission too fast" }, { status: 400 }), ctx);
       }
     }
 
@@ -101,53 +115,41 @@ export async function POST(request: Request) {
 
     if (webhook) {
       jobs.push(
-        fetch(webhook, {
+        fetchJsonWithRetry(webhook, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+          timeoutMs: 12000,
+          retries: 1,
+          body: {
             ...payload,
             leadScore: intelligence.score,
             leadPriority: intelligence.priority,
             routingTag: intelligence.routingTag,
-          }),
-        }).then(async (res) => {
-          await res.text();
-          return {
-            channel: "webhook",
-            ok: res.ok,
-            status: res.status,
-          };
-        }),
+          },
+        }).then(() => ({ channel: "webhook", ok: true, status: 200 })).catch(() => ({ channel: "webhook", ok: false, status: 502 })),
       );
     }
 
     if (resendApiKey && leadToEmail) {
       jobs.push(
-        fetch("https://api.resend.com/emails", {
+        fetchJsonWithRetry("https://api.resend.com/emails", {
           method: "POST",
+          timeoutMs: 12000,
+          retries: 1,
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${resendApiKey}`,
           },
-          body: JSON.stringify({
+          body: {
             from: "LX Obsidian Labs <onboarding@resend.dev>",
             to: [leadToEmail],
             subject: `[${intelligence.priority.toUpperCase()}] New lead: ${payload.projectType}`,
             html: buildEmailHtml(payload, intelligence),
-          }),
-        }).then(async (res) => {
-          await res.text();
-          return {
-            channel: "resend",
-            ok: res.ok,
-            status: res.status,
-          };
-        }),
+          },
+        }).then(() => ({ channel: "resend", ok: true, status: 200 })).catch(() => ({ channel: "resend", ok: false, status: 502 })),
       );
     }
 
     if (!jobs.length) {
-      return NextResponse.json({ error: "No lead delivery channel configured" }, { status: 500 });
+      return withRequestId(NextResponse.json({ error: "No lead delivery channel configured" }, { status: 500 }), ctx);
     }
 
     const results = await Promise.all(jobs);
@@ -155,16 +157,17 @@ export async function POST(request: Request) {
     const failed = results.filter((result) => !result.ok);
 
     if (!succeeded.length) {
-      return NextResponse.json(
+      return withRequestId(NextResponse.json(
         {
           error: "Lead delivery failed",
           details: failed.map((result) => ({ channel: result.channel, status: result.status })),
         },
         { status: 502 },
-      );
+      ), ctx);
     }
 
-    return NextResponse.json({
+    logInfo(ctx, "lead_submit_success", { priority: intelligence.priority, score: intelligence.score });
+    return withRequestId(NextResponse.json({
       ok: true,
       delivery: {
         channelsAttempted: results.length,
@@ -175,8 +178,9 @@ export async function POST(request: Request) {
       leadPriority: intelligence.priority,
       routingTag: intelligence.routingTag,
       whatsappUrl: buildWhatsAppUrl(payload, intelligence),
-    });
-  } catch {
-    return NextResponse.json({ error: "Unexpected server error" }, { status: 500 });
+    }), ctx);
+  } catch (error) {
+    logError(ctx, "lead_submit_error", error);
+    return withRequestId(NextResponse.json({ error: "Unexpected server error" }, { status: 500 }), ctx);
   }
 }
