@@ -41,6 +41,9 @@ export function CreatorProjectDetail({ id }: Props) {
   const [error, setError] = useState("");
   const [loadError, setLoadError] = useState("");
   const [changes, setChanges] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [fileDraft, setFileDraft] = useState("");
+  const [copied, setCopied] = useState(false);
 
   async function loadProject() {
     setLoading(true);
@@ -84,6 +87,41 @@ export function CreatorProjectDetail({ id }: Props) {
       return "Unable to render artifact content.";
     }
   }, [selectedArtifact]);
+
+  const codeFiles = useMemo(() => {
+    if (!selectedArtifact || typeof selectedArtifact.content !== "object" || !selectedArtifact.content) return [] as Array<[string, string]>;
+    const content = selectedArtifact.content as { codeDraft?: Record<string, string> };
+    return Object.entries(content.codeDraft || {}).filter((entry) => typeof entry[1] === "string");
+  }, [selectedArtifact]);
+
+  useEffect(() => {
+    if (!codeFiles.length) {
+      setSelectedFile(null);
+      setFileDraft("");
+      return;
+    }
+
+    const firstFile = codeFiles[0][0];
+    setSelectedFile(firstFile);
+    setFileDraft(codeFiles[0][1]);
+  }, [selectedArtifact?.id, codeFiles]);
+
+  const applyFileFromList = (file: string) => {
+    const next = codeFiles.find(([name]) => name === file);
+    setSelectedFile(file);
+    setFileDraft(next?.[1] || "");
+  };
+
+  const copyDraft = async () => {
+    if (!fileDraft.trim()) return;
+    try {
+      await navigator.clipboard.writeText(fileDraft);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   const applyEdit = async () => {
     if (!project || !selectedArtifact || instruction.trim().length < 4) return;
@@ -182,7 +220,47 @@ export function CreatorProjectDetail({ id }: Props) {
                 <p className="font-semibold">{selectedArtifact.title}</p>
                 <p className="text-xs text-muted">Artifact id: {selectedArtifact.id}</p>
               </div>
-              <pre className="max-h-[460px] overflow-auto whitespace-pre-wrap rounded-md border bg-surface p-3 text-xs text-muted">{artifactText}</pre>
+
+              {codeFiles.length ? (
+                <div className="grid gap-3 lg:grid-cols-12">
+                  <div className="space-y-2 rounded-md border bg-surface p-3 lg:col-span-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Files</p>
+                    {codeFiles.map(([file]) => (
+                      <button
+                        key={file}
+                        onClick={() => applyFileFromList(file)}
+                        className={
+                          file === selectedFile
+                            ? "w-full rounded-md border border-accent bg-white px-2 py-2 text-left text-xs font-semibold"
+                            : "w-full rounded-md border bg-white px-2 py-2 text-left text-xs"
+                        }
+                      >
+                        {file}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2 rounded-md border bg-surface p-3 lg:col-span-8">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">IDE Editor</p>
+                      <div className="flex gap-2">
+                        <Button variant="secondary" className="h-8 px-3 text-xs" onClick={() => applyFileFromList(selectedFile || codeFiles[0][0])}>
+                          Reset
+                        </Button>
+                        <Button className="h-8 px-3 text-xs" onClick={copyDraft}>{copied ? "Copied" : "Copy"}</Button>
+                      </div>
+                    </div>
+                    <textarea
+                      value={fileDraft}
+                      onChange={(e) => setFileDraft(e.target.value)}
+                      className="min-h-[340px] w-full rounded-md border bg-white px-3 py-2 font-mono text-xs"
+                    />
+                    <p className="text-xs text-muted">IDE mode is local-draft for fast iteration. Use AI Edit Panel to create a new persisted version.</p>
+                  </div>
+                </div>
+              ) : (
+                <pre className="max-h-[460px] overflow-auto whitespace-pre-wrap rounded-md border bg-surface p-3 text-xs text-muted">{artifactText}</pre>
+              )}
             </>
           ) : (
             <p className="text-sm text-muted">Select an artifact to preview.</p>

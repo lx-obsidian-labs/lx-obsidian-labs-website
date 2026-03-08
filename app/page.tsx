@@ -17,6 +17,7 @@ import { RoleBasedCtas } from "@/components/sections/role-based-ctas";
 import { LaunchPlanner } from "@/components/interactive/launch-planner";
 import { HomepageFaq } from "@/components/sections/homepage-faq";
 import { EngagementCenter } from "@/components/interactive/engagement-center";
+import { HomeCommandCenter } from "@/components/home/home-command-center";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -40,6 +41,12 @@ export default function Home() {
     <>
       <StructuredData />
       <Hero />
+
+      <Section className="bg-white pt-0">
+        <Reveal>
+          <HomeCommandCenter />
+        </Reveal>
+      </Section>
 
       <Section className="bg-white pt-0">
         <Reveal>

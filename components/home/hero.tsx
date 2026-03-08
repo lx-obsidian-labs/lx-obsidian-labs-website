@@ -14,6 +14,11 @@ export function Hero() {
         <p className="mt-6 max-w-2xl text-base text-zinc-300 md:text-lg">
           We build scalable technology, strong brand identity, and efficient business systems, while strategically advancing toward applied robotics by 2028.
         </p>
+        <div className="mt-6 flex flex-wrap gap-2 text-xs text-zinc-300">
+          <span className="rounded-full border border-zinc-700 bg-zinc-900/40 px-3 py-1">Prompt-to-build Creator workflows</span>
+          <span className="rounded-full border border-zinc-700 bg-zinc-900/40 px-3 py-1">Managed delivery for teams</span>
+          <span className="rounded-full border border-zinc-700 bg-zinc-900/40 px-3 py-1">Versioned project workspaces</span>
+        </div>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <Button asChild size="lg" className="w-full sm:w-auto">
             <Link href="/contact">Start Your Project</Link>
