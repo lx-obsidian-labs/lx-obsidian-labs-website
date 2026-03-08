@@ -11,6 +11,14 @@ type Plan = {
   components?: string[];
   metadata?: { title?: string; description?: string };
   codeDraft?: Record<string, string>;
+  acceptanceCriteria?: string[];
+  launchChecklist?: string[];
+};
+
+type WebQuality = {
+  score: number;
+  strengths: string[];
+  recommendations: string[];
 };
 
 export function WebStudio() {
@@ -25,6 +33,7 @@ export function WebStudio() {
   const [persistenceNotice, setPersistenceNotice] = useState("");
   const [persistenceEnabled, setPersistenceEnabled] = useState<boolean | null>(null);
   const [copied, setCopied] = useState(false);
+  const [quality, setQuality] = useState<WebQuality | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -67,6 +76,7 @@ export function WebStudio() {
     setLoading(true);
     setError("");
     setPersistenceNotice("");
+    setQuality(null);
     setStage("Planning structure...");
     try {
       const res = await fetch("/api/creator/web/generate", {
@@ -75,7 +85,7 @@ export function WebStudio() {
         body: JSON.stringify({ prompt, industry, style, pages: ["home", "services", "about", "contact"], primaryCta: "Start Your Project" }),
       });
       const data = (await res.json().catch(() => null)) as
-        | { output?: Plan; projectId?: string | null; persistence?: string; error?: string }
+        | { output?: Plan; projectId?: string | null; persistence?: string; quality?: WebQuality; error?: string }
         | null;
       if (!res.ok || !data || data.error || !data.output) {
         throw new Error(data?.error || "Plan generation failed");
@@ -83,6 +93,7 @@ export function WebStudio() {
       setStage("Saving project and versioning artifact...");
       const planData = data.output;
       setPlan(planData);
+      setQuality(data.quality || null);
       if (data.projectId) setProjectId(data.projectId);
       if (!data.projectId && data.persistence === "disabled") {
         setPersistenceNotice("Running in transient mode: output is generated but not saved to Projects until DATABASE_URL is configured.");
@@ -143,6 +154,31 @@ export function WebStudio() {
             <summary className="cursor-pointer font-semibold">Code Draft</summary>
             <pre className="mt-2 overflow-auto whitespace-pre-wrap text-xs text-muted">{JSON.stringify(plan.codeDraft || {}, null, 2)}</pre>
           </details>
+          {plan.acceptanceCriteria?.length ? (
+            <details className="mt-3 rounded-md border bg-white p-4">
+              <summary className="cursor-pointer font-semibold">Acceptance Criteria</summary>
+              <ul className="mt-2 text-sm text-muted">{plan.acceptanceCriteria.map((item) => <li key={item}>- {item}</li>)}</ul>
+            </details>
+          ) : null}
+          {plan.launchChecklist?.length ? (
+            <details className="mt-3 rounded-md border bg-white p-4">
+              <summary className="cursor-pointer font-semibold">Launch Checklist</summary>
+              <ul className="mt-2 text-sm text-muted">{plan.launchChecklist.map((item) => <li key={item}>- {item}</li>)}</ul>
+            </details>
+          ) : null}
+          {quality ? (
+            <div className="mt-3 rounded-md border bg-white p-4">
+              <p className="text-sm font-semibold">Output Quality Score: {quality.score}/100</p>
+              <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-accent">Strengths</p>
+              <ul className="mt-1 text-sm text-muted">{quality.strengths.map((item) => <li key={item}>- {item}</li>)}</ul>
+              {quality.recommendations.length ? (
+                <>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-accent">Recommended Improvements</p>
+                  <ul className="mt-1 text-sm text-muted">{quality.recommendations.map((item) => <li key={item}>- {item}</li>)}</ul>
+                </>
+              ) : null}
+            </div>
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             <Button variant="secondary" className="h-8 px-3 text-xs" onClick={copyOutput}>{copied ? "Copied" : "Copy Output"}</Button>
             <Button className="h-8 px-3 text-xs" onClick={downloadOutput}>Download JSON</Button>

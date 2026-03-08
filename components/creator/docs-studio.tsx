@@ -10,6 +10,12 @@ type DocOutput = {
   contentMarkdown?: string;
 };
 
+type DocQuality = {
+  score: number;
+  strengths: string[];
+  recommendations: string[];
+};
+
 export function DocsStudio() {
   const [documentType, setDocumentType] = useState("company-profile");
   const [companyName, setCompanyName] = useState("");
@@ -25,6 +31,7 @@ export function DocsStudio() {
   const [persistenceNotice, setPersistenceNotice] = useState("");
   const [persistenceEnabled, setPersistenceEnabled] = useState<boolean | null>(null);
   const [copied, setCopied] = useState(false);
+  const [quality, setQuality] = useState<DocQuality | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -69,6 +76,7 @@ export function DocsStudio() {
     setLoading(true);
     setError("");
     setPersistenceNotice("");
+    setQuality(null);
     setStage("Preparing document structure...");
     try {
       const res = await fetch("/api/creator/docs/generate", {
@@ -78,7 +86,7 @@ export function DocsStudio() {
       });
 
       const data = (await res.json().catch(() => null)) as
-        | { output?: DocOutput; projectId?: string | null; persistence?: string; error?: string }
+        | { output?: DocOutput; projectId?: string | null; persistence?: string; quality?: DocQuality; error?: string }
         | null;
       if (!res.ok || !data || data.error || !data.output) {
         throw new Error(data?.error || "Document generation failed");
@@ -87,6 +95,7 @@ export function DocsStudio() {
       const outputData = data.output;
 
       setOutput(outputData);
+      setQuality(data.quality || null);
       if (data.projectId) setProjectId(data.projectId);
       if (!data.projectId && data.persistence === "disabled") {
         setPersistenceNotice("Running in transient mode: document is generated but not saved to Projects until DATABASE_URL is configured.");
@@ -138,6 +147,19 @@ export function DocsStudio() {
             <summary className="cursor-pointer font-semibold">Content</summary>
             <pre className="mt-2 whitespace-pre-wrap text-xs text-muted">{output.contentMarkdown}</pre>
           </details>
+          {quality ? (
+            <div className="mt-3 rounded-md border bg-white p-4">
+              <p className="text-sm font-semibold">Output Quality Score: {quality.score}/100</p>
+              <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-accent">Strengths</p>
+              <ul className="mt-1 text-sm text-muted">{quality.strengths.map((item) => <li key={item}>- {item}</li>)}</ul>
+              {quality.recommendations.length ? (
+                <>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-accent">Recommended Improvements</p>
+                  <ul className="mt-1 text-sm text-muted">{quality.recommendations.map((item) => <li key={item}>- {item}</li>)}</ul>
+                </>
+              ) : null}
+            </div>
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             <Button variant="secondary" className="h-8 px-3 text-xs" onClick={copyOutput}>{copied ? "Copied" : "Copy Markdown"}</Button>
             <Button className="h-8 px-3 text-xs" onClick={downloadOutput}>Download .md</Button>

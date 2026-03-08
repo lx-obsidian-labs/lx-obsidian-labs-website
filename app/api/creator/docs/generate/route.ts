@@ -23,6 +23,12 @@ type DocOutput = {
   contentMarkdown: string;
 };
 
+type DocQuality = {
+  score: number;
+  strengths: string[];
+  recommendations: string[];
+};
+
 const docOutputSchema = z.object({
   title: z.string().min(1).max(140).optional(),
   outline: z.array(z.string().min(1).max(140)).max(24).optional(),
@@ -42,6 +48,53 @@ function fallback(body: Input): DocOutput {
     title: `${body.companyName || "Company"} ${body.documentType || "document"}`,
     outline: ["Executive Summary", "Business Context", "Recommendations", "Next Steps"],
     contentMarkdown: `# ${body.companyName || "Company"}\n\n## Executive Summary\nDraft placeholder. Configure OPENROUTER_API_KEY for full generation.`,
+  };
+}
+
+function normalizeDocOutput(output: DocOutput): DocOutput {
+  const title = output.title.trim().slice(0, 140) || "Generated Document";
+  const outline = (output.outline || []).filter(Boolean).slice(0, 24);
+  const contentMarkdown = output.contentMarkdown.trim();
+
+  return {
+    title,
+    outline: outline.length ? outline : ["Executive Summary", "Scope", "Plan", "Next Steps"],
+    contentMarkdown: contentMarkdown || `# ${title}\n\n## Executive Summary\nDraft content generated.`,
+  };
+}
+
+function evaluateDocOutput(output: DocOutput): DocQuality {
+  let score = 100;
+  const strengths: string[] = [];
+  const recommendations: string[] = [];
+
+  if (output.outline.length >= 4) strengths.push("Outline provides clear structure");
+  else {
+    score -= 15;
+    recommendations.push("Expand outline to at least 4 sections");
+  }
+
+  if (output.contentMarkdown.length >= 600) strengths.push("Content has workable depth");
+  else {
+    score -= 15;
+    recommendations.push("Increase document depth with examples and implementation detail");
+  }
+
+  if (output.contentMarkdown.includes("##")) strengths.push("Document uses sectional headings for readability");
+  else {
+    score -= 10;
+    recommendations.push("Use markdown headings to improve scannability");
+  }
+
+  if (!output.contentMarkdown.toLowerCase().includes("next steps")) {
+    score -= 8;
+    recommendations.push("Add a clear Next Steps section");
+  }
+
+  return {
+    score: Math.max(40, score),
+    strengths: strengths.slice(0, 4),
+    recommendations: recommendations.slice(0, 5),
   };
 }
 
@@ -126,11 +179,15 @@ Return strict JSON with keys: title (string), outline (string[]), contentMarkdow
       }
     }
 
+    output = normalizeDocOutput(output);
+    const quality = evaluateDocOutput(output);
+
     if (!hasDatabase || !authUserId) {
       return NextResponse.json({
         projectId: null,
         persistence: "disabled",
         output,
+        quality,
       });
     }
 
@@ -176,6 +233,7 @@ Return strict JSON with keys: title (string), outline (string[]), contentMarkdow
         title: artifact.title,
       },
       output,
+      quality,
     });
   } catch (error) {
     return creatorErrorResponse(error, "Unexpected document generation error.");
