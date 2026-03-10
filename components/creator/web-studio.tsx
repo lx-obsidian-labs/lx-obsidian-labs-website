@@ -21,6 +21,8 @@ type WebQuality = {
   recommendations: string[];
 };
 
+type WebTab = "plan" | "code" | "preview";
+
 export function WebStudio() {
   const [prompt, setPrompt] = useState("");
   const [industry, setIndustry] = useState("");
@@ -34,6 +36,8 @@ export function WebStudio() {
   const [persistenceEnabled, setPersistenceEnabled] = useState<boolean | null>(null);
   const [copied, setCopied] = useState(false);
   const [quality, setQuality] = useState<WebQuality | null>(null);
+  const [tab, setTab] = useState<WebTab>("plan");
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -72,6 +76,9 @@ export function WebStudio() {
     URL.revokeObjectURL(url);
   };
 
+  const codeFiles = Object.entries(plan?.codeDraft || {});
+  const currentFile = codeFiles.find(([file]) => file === selectedFile) || codeFiles[0] || null;
+
   const generate = async () => {
     setLoading(true);
     setError("");
@@ -94,6 +101,9 @@ export function WebStudio() {
       const planData = data.output;
       setPlan(planData);
       setQuality(data.quality || null);
+      const firstFile = Object.keys(planData.codeDraft || {})[0] || null;
+      setSelectedFile(firstFile);
+      setTab(firstFile ? "code" : "preview");
       if (data.projectId) setProjectId(data.projectId);
       if (!data.projectId && data.persistence === "disabled") {
         setPersistenceNotice("Running in transient mode: output is generated but not saved to Projects until DATABASE_URL is configured.");
@@ -128,32 +138,93 @@ export function WebStudio() {
 
       {plan ? (
         <div className="rounded-xl border bg-surface p-5 md:p-6">
-          <h3 className="text-lg font-semibold">Generated Plan: {plan.projectName || "Untitled"}</h3>
-          <details className="mt-3 rounded-md border bg-white p-4" open>
-            <summary className="cursor-pointer font-semibold">Sitemap</summary>
-            <ul className="mt-2 text-sm text-muted">{(plan.sitemap || []).map((item) => <li key={item}>- {item}</li>)}</ul>
-          </details>
-          <details className="mt-3 rounded-md border bg-white p-4">
-            <summary className="cursor-pointer font-semibold">Sections By Page</summary>
-            <div className="mt-2 space-y-2 text-sm text-muted">
-              {Object.entries(plan.sectionsByPage || {}).map(([page, sections]) => (
-                <p key={page}><span className="font-semibold text-[#111111]">{page}:</span> {sections.join(", ")}</p>
-              ))}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold">IDE Workspace: {plan.projectName || "Untitled"}</h3>
+            <div className="flex gap-2">
+              <button
+                className={tab === "plan" ? "rounded-md border border-accent bg-white px-3 py-1 text-xs font-semibold" : "rounded-md border bg-white px-3 py-1 text-xs"}
+                onClick={() => setTab("plan")}
+              >
+                Plan
+              </button>
+              <button
+                className={tab === "code" ? "rounded-md border border-accent bg-white px-3 py-1 text-xs font-semibold" : "rounded-md border bg-white px-3 py-1 text-xs"}
+                onClick={() => setTab("code")}
+              >
+                Code
+              </button>
+              <button
+                className={tab === "preview" ? "rounded-md border border-accent bg-white px-3 py-1 text-xs font-semibold" : "rounded-md border bg-white px-3 py-1 text-xs"}
+                onClick={() => setTab("preview")}
+              >
+                Preview
+              </button>
             </div>
-          </details>
-          <details className="mt-3 rounded-md border bg-white p-4">
-            <summary className="cursor-pointer font-semibold">Components</summary>
-            <ul className="mt-2 text-sm text-muted">{(plan.components || []).map((item) => <li key={item}>- {item}</li>)}</ul>
-          </details>
-          <details className="mt-3 rounded-md border bg-white p-4">
-            <summary className="cursor-pointer font-semibold">SEO Metadata</summary>
-            <p className="mt-2 text-sm text-muted">Title: {plan.metadata?.title || "N/A"}</p>
-            <p className="mt-1 text-sm text-muted">Description: {plan.metadata?.description || "N/A"}</p>
-          </details>
-          <details className="mt-3 rounded-md border bg-white p-4">
-            <summary className="cursor-pointer font-semibold">Code Draft</summary>
-            <pre className="mt-2 overflow-auto whitespace-pre-wrap text-xs text-muted">{JSON.stringify(plan.codeDraft || {}, null, 2)}</pre>
-          </details>
+          </div>
+
+          {tab === "plan" ? (
+            <>
+              <details className="mt-3 rounded-md border bg-white p-4" open>
+                <summary className="cursor-pointer font-semibold">Sitemap</summary>
+                <ul className="mt-2 text-sm text-muted">{(plan.sitemap || []).map((item) => <li key={item}>- {item}</li>)}</ul>
+              </details>
+              <details className="mt-3 rounded-md border bg-white p-4">
+                <summary className="cursor-pointer font-semibold">Sections By Page</summary>
+                <div className="mt-2 space-y-2 text-sm text-muted">
+                  {Object.entries(plan.sectionsByPage || {}).map(([page, sections]) => (
+                    <p key={page}><span className="font-semibold text-[#111111]">{page}:</span> {sections.join(", ")}</p>
+                  ))}
+                </div>
+              </details>
+              <details className="mt-3 rounded-md border bg-white p-4">
+                <summary className="cursor-pointer font-semibold">Components</summary>
+                <ul className="mt-2 text-sm text-muted">{(plan.components || []).map((item) => <li key={item}>- {item}</li>)}</ul>
+              </details>
+              <details className="mt-3 rounded-md border bg-white p-4">
+                <summary className="cursor-pointer font-semibold">SEO Metadata</summary>
+                <p className="mt-2 text-sm text-muted">Title: {plan.metadata?.title || "N/A"}</p>
+                <p className="mt-1 text-sm text-muted">Description: {plan.metadata?.description || "N/A"}</p>
+              </details>
+            </>
+          ) : null}
+
+          {tab === "code" ? (
+            <div className="mt-3 grid gap-3 lg:grid-cols-12">
+              <div className="space-y-2 rounded-md border bg-white p-3 lg:col-span-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Files</p>
+                {codeFiles.length ? codeFiles.map(([file]) => (
+                  <button
+                    key={file}
+                    onClick={() => setSelectedFile(file)}
+                    className={selectedFile === file ? "w-full rounded-md border border-accent bg-[#fff1f2] px-2 py-2 text-left text-xs font-semibold" : "w-full rounded-md border px-2 py-2 text-left text-xs"}
+                  >
+                    {file}
+                  </button>
+                )) : <p className="text-xs text-muted">No code files generated.</p>}
+              </div>
+              <div className="rounded-md border bg-white p-3 lg:col-span-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Editor</p>
+                <pre className="mt-2 max-h-[420px] overflow-auto whitespace-pre-wrap rounded-md border bg-surface p-3 text-xs text-muted">{currentFile?.[1] || "No file selected."}</pre>
+              </div>
+            </div>
+          ) : null}
+
+          {tab === "preview" ? (
+            <div className="mt-3 rounded-md border bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Live Preview</p>
+              <h4 className="mt-2 text-2xl font-bold">{plan.metadata?.title || plan.projectName || "Generated Website"}</h4>
+              <p className="mt-2 text-sm text-muted">{plan.metadata?.description || "No description available."}</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {(plan.sitemap || []).map((page) => (
+                  <article key={page} className="rounded-md border bg-surface p-3">
+                    <p className="text-sm font-semibold">{page}</p>
+                    <p className="mt-1 text-xs text-muted">{(plan.sectionsByPage?.[page] || []).join(" • ") || "Sections pending"}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           {plan.acceptanceCriteria?.length ? (
             <details className="mt-3 rounded-md border bg-white p-4">
               <summary className="cursor-pointer font-semibold">Acceptance Criteria</summary>

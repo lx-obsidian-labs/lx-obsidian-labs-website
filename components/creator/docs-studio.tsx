@@ -16,6 +16,8 @@ type DocQuality = {
   recommendations: string[];
 };
 
+type DocsTab = "outline" | "editor" | "preview";
+
 export function DocsStudio() {
   const [documentType, setDocumentType] = useState("company-profile");
   const [companyName, setCompanyName] = useState("");
@@ -32,6 +34,7 @@ export function DocsStudio() {
   const [persistenceEnabled, setPersistenceEnabled] = useState<boolean | null>(null);
   const [copied, setCopied] = useState(false);
   const [quality, setQuality] = useState<DocQuality | null>(null);
+  const [tab, setTab] = useState<DocsTab>("editor");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -96,6 +99,7 @@ export function DocsStudio() {
 
       setOutput(outputData);
       setQuality(data.quality || null);
+      setTab("preview");
       if (data.projectId) setProjectId(data.projectId);
       if (!data.projectId && data.persistence === "disabled") {
         setPersistenceNotice("Running in transient mode: document is generated but not saved to Projects until DATABASE_URL is configured.");
@@ -138,15 +142,72 @@ export function DocsStudio() {
 
       {output ? (
         <div className="rounded-xl border bg-surface p-5 md:p-6">
-          <h3 className="text-lg font-semibold">{output.title || "Generated Document"}</h3>
-          <details className="mt-3 rounded-md border bg-white p-4" open>
-            <summary className="cursor-pointer font-semibold">Outline</summary>
-            <ul className="mt-2 text-sm text-muted">{(output.outline || []).map((item) => <li key={item}>- {item}</li>)}</ul>
-          </details>
-          <details className="mt-3 rounded-md border bg-white p-4">
-            <summary className="cursor-pointer font-semibold">Content</summary>
-            <pre className="mt-2 whitespace-pre-wrap text-xs text-muted">{output.contentMarkdown}</pre>
-          </details>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold">IDE Workspace: {output.title || "Generated Document"}</h3>
+            <div className="flex gap-2">
+              <button
+                className={tab === "outline" ? "rounded-md border border-accent bg-white px-3 py-1 text-xs font-semibold" : "rounded-md border bg-white px-3 py-1 text-xs"}
+                onClick={() => setTab("outline")}
+              >
+                Outline
+              </button>
+              <button
+                className={tab === "editor" ? "rounded-md border border-accent bg-white px-3 py-1 text-xs font-semibold" : "rounded-md border bg-white px-3 py-1 text-xs"}
+                onClick={() => setTab("editor")}
+              >
+                Editor
+              </button>
+              <button
+                className={tab === "preview" ? "rounded-md border border-accent bg-white px-3 py-1 text-xs font-semibold" : "rounded-md border bg-white px-3 py-1 text-xs"}
+                onClick={() => setTab("preview")}
+              >
+                Preview
+              </button>
+            </div>
+          </div>
+
+          {tab === "outline" ? (
+            <div className="mt-3 rounded-md border bg-white p-4">
+              <p className="text-sm font-semibold">Outline</p>
+              <ul className="mt-2 text-sm text-muted">{(output.outline || []).map((item) => <li key={item}>- {item}</li>)}</ul>
+            </div>
+          ) : null}
+
+          {tab === "editor" ? (
+            <div className="mt-3 rounded-md border bg-white p-4">
+              <p className="text-sm font-semibold">Markdown Editor</p>
+              <textarea
+                readOnly
+                value={output.contentMarkdown || ""}
+                className="mt-2 min-h-[340px] w-full rounded-md border bg-surface px-3 py-2 font-mono text-xs text-muted"
+              />
+            </div>
+          ) : null}
+
+          {tab === "preview" ? (
+            <div className="mt-3 rounded-md border bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Live Preview</p>
+              <div className="mt-3 space-y-2 text-sm text-[#111111]">
+                {(output.contentMarkdown || "")
+                  .split("\n")
+                  .filter((line) => line.trim().length)
+                  .slice(0, 40)
+                  .map((line, index) => {
+                    if (line.startsWith("# ")) {
+                      return <h4 key={`${line}-${index}`} className="text-xl font-bold">{line.replace(/^#\s/, "")}</h4>;
+                    }
+                    if (line.startsWith("## ")) {
+                      return <h5 key={`${line}-${index}`} className="pt-2 text-base font-semibold">{line.replace(/^##\s/, "")}</h5>;
+                    }
+                    if (line.startsWith("- ")) {
+                      return <p key={`${line}-${index}`} className="text-sm text-muted">• {line.replace(/^-\s/, "")}</p>;
+                    }
+                    return <p key={`${line}-${index}`} className="text-sm text-muted">{line}</p>;
+                  })}
+              </div>
+            </div>
+          ) : null}
+
           {quality ? (
             <div className="mt-3 rounded-md border bg-white p-4">
               <p className="text-sm font-semibold">Output Quality Score: {quality.score}/100</p>
