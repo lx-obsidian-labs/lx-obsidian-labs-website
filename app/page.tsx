@@ -8,15 +8,8 @@ import { PortfolioCard } from "@/components/cards/portfolio-card";
 import { services, portfolioProjects, newsUpdates, techBlogPosts } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
-import { SystemsDashboardPreview } from "@/components/interactive/systems-dashboard-preview";
-import { stackBadges, testimonials } from "@/content/site";
-import { CustomerNeeds } from "@/components/sections/customer-needs";
+import { testimonials } from "@/content/site";
 import { StructuredData } from "@/components/structured-data";
-import { FitChecker } from "@/components/interactive/fit-checker";
-import { RoleBasedCtas } from "@/components/sections/role-based-ctas";
-import { LaunchPlanner } from "@/components/interactive/launch-planner";
-import { HomepageFaq } from "@/components/sections/homepage-faq";
-import { EngagementCenter } from "@/components/interactive/engagement-center";
 import { HomeCommandCenter } from "@/components/home/home-command-center";
 import { HomeValueStrip } from "@/components/home/home-value-strip";
 
@@ -27,7 +20,7 @@ const ContactForm = dynamic(
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "LX Obsidian Labs delivers software development, graphic design, and business consultancy for modern businesses.",
+    "LX Obsidian Labs helps teams launch faster with software systems, design execution, and AI-assisted workflows.",
   alternates: { canonical: "/" },
   openGraph: {
     images: [{ url: "/opengraph-image" }],
@@ -52,12 +45,6 @@ export default function Home() {
       <Section className="bg-surface pt-0">
         <Reveal>
           <HomeValueStrip />
-        </Reveal>
-      </Section>
-
-      <Section className="bg-white pt-0">
-        <Reveal>
-          <LaunchPlanner />
         </Reveal>
       </Section>
 
@@ -146,30 +133,6 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section className="bg-white pt-0">
-        <Reveal>
-          <SystemsDashboardPreview />
-        </Reveal>
-      </Section>
-
-      <Section className="bg-surface pt-0">
-        <Reveal>
-          <CustomerNeeds />
-        </Reveal>
-      </Section>
-
-      <Section className="bg-white pt-0">
-        <Reveal>
-          <FitChecker />
-        </Reveal>
-      </Section>
-
-      <Section className="bg-surface pt-0">
-        <Reveal>
-          <RoleBasedCtas />
-        </Reveal>
-      </Section>
-
       <Section id="about-preview" className="bg-white">
         <Reveal>
           <div className="grid gap-10 rounded-2xl border bg-white p-8 md:grid-cols-2 md:p-12">
@@ -186,7 +149,7 @@ export default function Home() {
                 The result is faster delivery, lower complexity, and technology foundations built for sustainable growth.
               </p>
               <p>
-                Our strategy also includes a measured transition into applied robotics by 2028 as resources, partnerships, and R&D capacity mature.
+                We keep every engagement practical: less noise, faster implementation, and outcomes your team can measure.
               </p>
               <Button asChild variant="secondary">
                 <Link href="/about">Learn More About Us</Link>
@@ -202,7 +165,7 @@ export default function Home() {
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Call To Action</p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to move from idea to a shipped output?</h2>
-              <p className="mt-2 max-w-2xl text-sm text-zinc-300">Start with Creator if you want speed, or start a managed project brief if you want full delivery support.</p>
+              <p className="mt-2 max-w-2xl text-sm text-zinc-300">Pick one path and start now. You can switch between AI Creator and managed delivery anytime.</p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               <Button asChild size="lg" className="w-full sm:w-auto">
@@ -221,13 +184,13 @@ export default function Home() {
         </Reveal>
       </Section>
 
-      <Section className="bg-white">
+      <Section className="bg-white pt-0">
         <Reveal>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Trusted Outcomes</p>
-          <h2 className="mt-3 text-3xl font-bold md:text-4xl">What clients say about our systems approach.</h2>
+          <h2 className="mt-3 text-3xl font-bold md:text-4xl">What clients say about working with us.</h2>
         </Reveal>
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
+          {testimonials.slice(0, 3).map((testimonial, index) => (
             <Reveal key={testimonial.author} delay={index * 0.08}>
               <article className="rounded-xl border bg-white p-6">
                 <p className="text-sm text-muted">&ldquo;{testimonial.quote}&rdquo;</p>
@@ -236,31 +199,6 @@ export default function Home() {
             </Reveal>
           ))}
         </div>
-      </Section>
-
-      <Section className="bg-surface pt-0">
-        <div className="rounded-xl border bg-white p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Technology Stack</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {stackBadges.map((badge) => (
-              <span key={badge} className="rounded-full border bg-surface px-3 py-1 text-xs font-semibold text-[#111111]">
-                {badge}
-              </span>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      <Section className="bg-white pt-0">
-        <Reveal>
-          <HomepageFaq />
-        </Reveal>
-      </Section>
-
-      <Section className="bg-surface pt-0">
-        <Reveal>
-          <EngagementCenter />
-        </Reveal>
       </Section>
 
       <Section id="contact" className="bg-white">

@@ -44,18 +44,13 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link className="hover:text-accent" href="/lab">
-                Lab
+              <Link className="hover:text-accent" href="/blog">
+                Blog
               </Link>
             </li>
             <li>
-              <Link className="hover:text-accent" href="/resources">
-                Resources
-              </Link>
-            </li>
-            <li>
-              <Link className="hover:text-accent" href="/insights">
-                Insights
+              <Link className="hover:text-accent" href="/news">
+                News
               </Link>
             </li>
             <li>
@@ -69,6 +64,9 @@ export function Footer() {
               </Link>
             </li>
           </ul>
+          <p className="mt-3 text-xs text-zinc-400">
+            Explore: <Link className="hover:text-accent" href="/lab">Lab</Link> • <Link className="hover:text-accent" href="/resources">Resources</Link> • <Link className="hover:text-accent" href="/insights">Insights</Link>
+          </p>
         </div>
 
         <div>

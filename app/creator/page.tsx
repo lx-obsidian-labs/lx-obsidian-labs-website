@@ -9,11 +9,10 @@ export const metadata: Metadata = {
 };
 
 const modules = [
-  { title: "Agent Workspace", href: "/creator/agent", detail: "Run multi-step goals, track progress, and save checkpoints." },
+  { title: "Agent Workspace", href: "/creator/agent", detail: "Prompt once, generate outputs, and iterate." },
   { title: "Website Builder", href: "/creator/web", detail: "Turn one prompt into sitemap, sections, metadata, and draft code." },
   { title: "Document Studio", href: "/creator/docs", detail: "Generate proposals, company profiles, plans, and policy drafts." },
-  { title: "Projects", href: "/creator/projects", detail: "Open versioned artifacts and edit outputs by instruction." },
-  { title: "Consulting", href: "/creator/consult", detail: "Get execution strategy, rollout sequencing, and operating guidance." },
+  { title: "Projects", href: "/creator/projects", detail: "Open saved artifacts and continue with AI edits." },
 ];
 
 const quickStarts = [
@@ -84,33 +83,7 @@ export default function CreatorPage() {
           </div>
         </div>
 
-        <div className="mb-8 rounded-xl border bg-surface p-5 md:p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">Workflow</p>
-          <div className="mt-4 grid gap-3 md:grid-cols-4">
-            <div className="rounded-md border bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 1</p>
-              <p className="mt-1 text-sm font-semibold">Define goal</p>
-              <p className="mt-1 text-xs text-muted">Describe the business outcome you want in one prompt.</p>
-            </div>
-            <div className="rounded-md border bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 2</p>
-              <p className="mt-1 text-sm font-semibold">Generate draft</p>
-              <p className="mt-1 text-xs text-muted">Create a first artifact with structure, copy, and implementation hints.</p>
-            </div>
-            <div className="rounded-md border bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 3</p>
-              <p className="mt-1 text-sm font-semibold">Refine by instruction</p>
-              <p className="mt-1 text-xs text-muted">Use focused edits to create new artifact versions quickly.</p>
-            </div>
-            <div className="rounded-md border bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Step 4</p>
-              <p className="mt-1 text-sm font-semibold">Ship output</p>
-              <p className="mt-1 text-xs text-muted">Reuse saved projects and continue from where you left off.</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-3">
           {modules.map((module) => (
             <article key={module.title} className="rounded-xl border bg-surface p-5">
               <h2 className="text-xl font-semibold">{module.title}</h2>
@@ -125,32 +98,6 @@ export default function CreatorPage() {
           <Link href="/creator/projects" className="text-sm font-semibold text-accent hover:underline">
             Open Projects
           </Link>
-          <Link href="/creator/billing" className="text-sm font-semibold text-accent hover:underline">
-            View Billing
-          </Link>
-          <Link href="/auth" className="text-sm font-semibold text-accent hover:underline">
-            Login / Register
-          </Link>
-        </div>
-      </Section>
-
-      <Section className="bg-surface pt-0">
-        <div className="rounded-xl border bg-white p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">How It Works</p>
-          <div className="mt-4 space-y-3">
-            <details className="rounded-md border p-4" open>
-              <summary className="cursor-pointer font-semibold">1. Prompt Your Build Goal</summary>
-              <p className="mt-2 text-sm text-muted">Describe your app, website, document, or business task in one prompt.</p>
-            </details>
-            <details className="rounded-md border p-4">
-              <summary className="cursor-pointer font-semibold">2. Get Structured Plan</summary>
-              <p className="mt-2 text-sm text-muted">Creator returns a compact plan: pages, modules, outputs, and next actions.</p>
-            </details>
-            <details className="rounded-md border p-4">
-              <summary className="cursor-pointer font-semibold">3. Iterate by Instruction</summary>
-              <p className="mt-2 text-sm text-muted">Say what to change and regenerate without manually editing complex code.</p>
-            </details>
-          </div>
         </div>
       </Section>
     </>

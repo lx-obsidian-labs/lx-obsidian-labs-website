@@ -9,10 +9,10 @@ export function Hero() {
       <div className="max-w-4xl">
         <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-accent">LX Obsidian Labs</p>
         <h1 className="text-balance text-4xl font-extrabold leading-tight text-white md:text-6xl">
-          Software, Design &amp; Systems for Modern Businesses
+          Build and launch faster with software, design, and AI workflows.
         </h1>
         <p className="mt-6 max-w-2xl text-base text-zinc-300 md:text-lg">
-          We build scalable technology, strong brand identity, and efficient business systems, while strategically advancing toward applied robotics by 2028.
+          Choose the route that fits your team: use Obsidian Creator for speed, or start a managed project for full execution support.
         </p>
         <div className="mt-6 flex flex-wrap gap-2 text-xs text-zinc-300">
           <span className="rounded-full border border-zinc-700 bg-zinc-900/40 px-3 py-1">Prompt-to-build Creator workflows</span>
