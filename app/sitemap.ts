@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { caseStudies, insights } from "@/lib/data";
+import { caseStudies, insights, newsUpdates, techBlogPosts } from "@/lib/data";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lxobsidianlabs.vercel.app";
 
@@ -22,6 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { route: "/resources", lastModified: "2026-03-05", priority: 0.8 },
     { route: "/portfolio", lastModified: "2026-03-05", priority: 0.9 },
     { route: "/about", lastModified: "2026-03-05", priority: 0.8 },
+    { route: "/blog", lastModified: "2026-03-10", priority: 0.85 },
+    { route: "/news", lastModified: "2026-03-10", priority: 0.8 },
     { route: "/insights", lastModified: "2026-03-05", priority: 0.85 },
     { route: "/contact", lastModified: "2026-03-05", priority: 0.9 },
   ];
@@ -38,7 +40,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }));
 
-  return [...staticRoutes, ...caseStudyRoutes, ...insightRoutes].map((entry) => ({
+  const blogRoutes = techBlogPosts.map((post) => ({
+    route: `/blog/${post.slug}`,
+    lastModified: post.updatedAt,
+    priority: 0.75,
+  }));
+
+  const newsRoutes = newsUpdates.map((item) => ({
+    route: `/news/${item.slug}`,
+    lastModified: item.updatedAt,
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...caseStudyRoutes, ...insightRoutes, ...blogRoutes, ...newsRoutes].map((entry) => ({
     url: `${baseUrl}${entry.route}`,
     lastModified: new Date(entry.lastModified),
     changeFrequency: "weekly",

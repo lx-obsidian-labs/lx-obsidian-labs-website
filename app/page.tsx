@@ -5,7 +5,7 @@ import { Hero } from "@/components/home/hero";
 import { Section } from "@/components/layout/section";
 import { ServiceCard } from "@/components/cards/service-card";
 import { PortfolioCard } from "@/components/cards/portfolio-card";
-import { services, portfolioProjects } from "@/lib/data";
+import { services, portfolioProjects, newsUpdates, techBlogPosts } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { SystemsDashboardPreview } from "@/components/interactive/systems-dashboard-preview";
@@ -100,6 +100,49 @@ export default function Home() {
               <PortfolioCard {...project} />
             </Reveal>
           ))}
+        </div>
+      </Section>
+
+      <Section className="bg-white pt-0">
+        <Reveal>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Knowledge & Updates</p>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Explore technology blog posts and latest platform news.</h2>
+            </div>
+            <div className="flex gap-3">
+              <Button asChild variant="secondary">
+                <Link href="/blog">View Blog</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/news">View News</Link>
+              </Button>
+            </div>
+          </div>
+        </Reveal>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Reveal>
+            <article className="rounded-xl border bg-surface p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Featured Blog</p>
+              <h3 className="mt-2 text-xl font-semibold">{techBlogPosts[0].title}</h3>
+              <p className="mt-3 text-sm text-muted">{techBlogPosts[0].excerpt}</p>
+              <Link href={`/blog/${techBlogPosts[0].slug}`} className="mt-4 inline-block text-sm font-semibold text-[#111111] hover:text-accent">
+                Read Blog Article
+              </Link>
+            </article>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <article className="rounded-xl border bg-surface p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Latest News</p>
+              <h3 className="mt-2 text-xl font-semibold">{newsUpdates[0].title}</h3>
+              <p className="mt-3 text-sm text-muted">{newsUpdates[0].excerpt}</p>
+              <Link href={`/news/${newsUpdates[0].slug}`} className="mt-4 inline-block text-sm font-semibold text-[#111111] hover:text-accent">
+                Read News Update
+              </Link>
+            </article>
+          </Reveal>
         </div>
       </Section>
 

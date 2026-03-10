@@ -2,6 +2,8 @@ export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/creator", label: "Creator" },
   { href: "/services", label: "Services" },
+  { href: "/blog", label: "Blog" },
+  { href: "/news", label: "News" },
   { href: "/lab", label: "Lab" },
   { href: "/resources", label: "Resources" },
   { href: "/portfolio", label: "Portfolio" },
@@ -394,5 +396,87 @@ export const insights = [
     content:
       "Automation adds complexity when the underlying process is unstable. Teams should define state transitions, escalation rules, and accountability before wiring triggers. Reliable automation is designed as a system, not as scattered scripts.",
     updatedAt: "2026-02-19",
+  },
+];
+
+export type TechBlogPost = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  updatedAt: string;
+  readTime: string;
+  topic: string;
+};
+
+export const techBlogPosts: TechBlogPost[] = [
+  {
+    slug: "engineering-agentic-workflows-for-real-business-use",
+    title: "Engineering Agentic Workflows for Real Business Use",
+    excerpt: "Agentic systems become useful when they can plan, execute, and persist outputs across real workflows.",
+    content:
+      "Agentic workflows should not be designed as single chat completions. They need planning, checkpointing, and versioning. Teams get measurable value when agent outputs are connected to execution surfaces like project boards, delivery docs, and deployment processes. The practical implementation pattern is prompt -> plan -> build -> validate -> iterate -> ship.",
+    updatedAt: "2026-03-10",
+    readTime: "5 min",
+    topic: "AI Engineering",
+  },
+  {
+    slug: "designing-conversion-pages-that-dont-feel-generic",
+    title: "Designing Conversion Pages That Don’t Feel Generic",
+    excerpt: "Conversion and brand expression can coexist when hierarchy, proof, and CTA paths are intentional.",
+    content:
+      "Most landing pages fail because they stack sections without strategic sequencing. Strong conversion pages establish context quickly, provide trust anchors, and reduce decision friction with clear next actions. A reliable approach is to align page structure with user intent: orientation, proof, decision support, then action.",
+    updatedAt: "2026-03-08",
+    readTime: "4 min",
+    topic: "Product Design",
+  },
+  {
+    slug: "how-to-ship-ai-generated-outputs-with-quality-control",
+    title: "How to Ship AI-Generated Outputs With Quality Control",
+    excerpt: "Generated content needs normalization, scoring, and launch checklists before publication.",
+    content:
+      "AI generation speed is not enough for production environments. Teams should add output normalization, acceptance criteria, and quality scoring to every generation pipeline. This ensures consistency and reduces regressions. The best systems expose recommendations directly in the UI so iteration happens immediately.",
+    updatedAt: "2026-03-06",
+    readTime: "6 min",
+    topic: "Quality Systems",
+  },
+];
+
+export type NewsUpdate = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  updatedAt: string;
+  category: "Platform" | "Company" | "Release";
+};
+
+export const newsUpdates: NewsUpdate[] = [
+  {
+    slug: "creator-ide-workspace-update",
+    title: "Creator Workspace Updated With IDE-Style Editing",
+    excerpt: "Projects now support file-style draft editing for faster iteration before persisted AI edits.",
+    content:
+      "We shipped an IDE-style workflow inside Creator project detail pages. Users can browse generated files, edit drafts, copy snippets, and continue with instruction-based versioning. This improves iteration speed and makes generated outputs more practical for implementation handoff.",
+    updatedAt: "2026-03-10",
+    category: "Release",
+  },
+  {
+    slug: "creator-transient-mode-live",
+    title: "Creator Transient Mode Is Live",
+    excerpt: "Creator generation now works even when database persistence is not configured.",
+    content:
+      "We introduced transient mode to reduce setup friction. Users can generate websites and documents without immediate database configuration. Outputs remain usable via copy/download actions, while persistence becomes available automatically when DATABASE_URL is configured.",
+    updatedAt: "2026-03-10",
+    category: "Platform",
+  },
+  {
+    slug: "homepage-navigation-and-start-path-upgrade",
+    title: "Homepage Start Paths and Navigation Improved",
+    excerpt: "The homepage now routes visitors faster into Creator, managed delivery, or design fast-track flows.",
+    content:
+      "We restructured the homepage with clearer start paths and stronger conversion guidance. Users now see direct routes based on objective, urgency, and service intent. This reduces decision friction and improves onboarding into the most relevant workflow.",
+    updatedAt: "2026-03-09",
+    category: "Company",
   },
 ];
