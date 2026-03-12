@@ -16,8 +16,8 @@ export function Footer() {
             Strategic roadmap: transition toward applied robotics by 2028 as resources and research capacity expand.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link href="/contact" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
-              Start Project Brief
+            <Link href="/services/design-order" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
+              Order Designs
             </Link>
             <Link href="/creator" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
               Open Creator

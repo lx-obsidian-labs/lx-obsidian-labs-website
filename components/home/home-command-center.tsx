@@ -3,6 +3,12 @@ import { Button } from "@/components/ui/button";
 
 const tracks = [
   {
+    title: "Order Designs (Primary)",
+    detail: "Best for urgent visual assets, brand directions, and campaign-ready design outputs.",
+    href: "/services/design-order",
+    cta: "Place Design Order",
+  },
+  {
     title: "Build With AI Creator",
     detail: "Best for fast website/doc generation and iterative editing inside versioned projects.",
     href: "/creator/agent",
@@ -13,12 +19,6 @@ const tracks = [
     detail: "Best when you need strategy, implementation, and support from our team end-to-end.",
     href: "/contact#start-form",
     cta: "Start Project Brief",
-  },
-  {
-    title: "Design Fast Track",
-    detail: "Best for urgent visual assets, brand directions, and campaign-ready design outputs.",
-    href: "/services/design-order",
-    cta: "Place Design Order",
   },
 ];
 

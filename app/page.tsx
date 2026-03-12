@@ -20,7 +20,7 @@ const ContactForm = dynamic(
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "LX Obsidian Labs helps teams launch faster with software systems, design execution, and AI-assisted workflows.",
+    "Order designs fast with LX Obsidian Labs, then scale into software systems and AI-assisted workflows.",
   alternates: { canonical: "/" },
   openGraph: {
     images: [{ url: "/opengraph-image" }],
@@ -165,11 +165,11 @@ export default function Home() {
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Call To Action</p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to move from idea to a shipped output?</h2>
-              <p className="mt-2 max-w-2xl text-sm text-zinc-300">Pick one path and start now. You can switch between AI Creator and managed delivery anytime.</p>
+              <p className="mt-2 max-w-2xl text-sm text-zinc-300">Start with design if you need fast creative delivery, then expand into build and automation.</p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href="/creator/agent">Run Agent Workspace</Link>
+                <Link href="/services/design-order">Order Designs</Link>
               </Button>
               <Button
                 asChild
@@ -177,7 +177,7 @@ export default function Home() {
                 variant="secondary"
                 className="w-full border-zinc-200 text-zinc-100 hover:bg-zinc-100 hover:text-[#111111] sm:w-auto"
               >
-                <Link href="/contact#start-form">Start Project Brief</Link>
+                <Link href="/creator/agent">Run Agent Workspace</Link>
               </Button>
             </div>
           </div>

@@ -42,7 +42,7 @@ export function Navbar() {
             );
           })}
           <Button asChild size="default">
-            <Link href="/contact">Start Your Project</Link>
+            <Link href="/services/design-order">Order Designs</Link>
           </Button>
         </nav>
 
@@ -86,8 +86,8 @@ export function Navbar() {
                 );
               })}
               <Button asChild className="mt-2 w-full">
-                <Link href="/contact" onClick={() => setOpen(false)}>
-                  Start Your Project
+                <Link href="/services/design-order" onClick={() => setOpen(false)}>
+                  Order Designs
                 </Link>
               </Button>
             </Container>
