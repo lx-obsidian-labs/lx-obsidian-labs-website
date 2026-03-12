@@ -9,6 +9,9 @@ const checkoutSchema = z.object({
   itemDescription: z.string().trim().max(255).optional(),
   donorName: z.string().trim().max(120).optional(),
   donorEmail: z.email().optional(),
+  customStr1: z.string().trim().max(255).optional(),
+  customStr2: z.string().trim().max(255).optional(),
+  customStr3: z.string().trim().max(255).optional(),
 });
 
 function encode(value: string) {
@@ -71,6 +74,9 @@ export async function POST(request: Request) {
       amount,
       item_name: payload.itemName || "Robotics Program Donation",
       item_description: payload.itemDescription || "Support for LX Obsidian Labs robotics research and prototyping.",
+      custom_str1: payload.customStr1 || "",
+      custom_str2: payload.customStr2 || "",
+      custom_str3: payload.customStr3 || "",
     };
 
     const signature = buildSignature(fields, passphrase);
