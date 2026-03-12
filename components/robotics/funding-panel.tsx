@@ -48,6 +48,7 @@ const supportLanes = [
 export function RoboticsFundingPanel() {
   const [form, setForm] = useState<SupportForm>(defaultForm);
   const [loading, setLoading] = useState(false);
+  const [payfastLoading, setPayfastLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [startedAt, setStartedAt] = useState<number>(Date.now());
@@ -55,6 +56,53 @@ export function RoboticsFundingPanel() {
   const valid = useMemo(() => {
     return Boolean(form.name.trim() && form.email.trim() && form.message.trim().length >= 12);
   }, [form]);
+
+  const normalizeAmount = (value: string) => {
+    const numeric = Number.parseFloat(value.replace(/[^0-9.]/g, ""));
+    if (!Number.isFinite(numeric) || numeric <= 0) return null;
+    return Math.round(numeric * 100) / 100;
+  };
+
+  const startPayfastCheckout = async (amountInput: string) => {
+    const amount = normalizeAmount(amountInput);
+    if (!amount) {
+      setError("Please enter a valid donation amount for PayFast.");
+      return;
+    }
+
+    setPayfastLoading(true);
+    setError("");
+    track("robotics_payfast_checkout_attempt", { amount });
+
+    try {
+      const res = await fetch("/api/payments/payfast/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          donorName: form.name || "Supporter",
+          donorEmail: form.email || undefined,
+          itemName: "Robotics Program Donation",
+          itemDescription: "Support for LX Obsidian Labs robotics program.",
+        }),
+      });
+
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error || "Could not start PayFast checkout.");
+      }
+
+      const data = (await res.json()) as { checkoutUrl?: string };
+      if (!data.checkoutUrl) throw new Error("PayFast checkout URL not returned.");
+      track("robotics_payfast_checkout_redirect", { amount });
+      window.location.href = data.checkoutUrl;
+    } catch (checkoutError) {
+      setError(checkoutError instanceof Error ? checkoutError.message : "PayFast checkout failed.");
+      track("robotics_payfast_checkout_failed", { amount });
+    } finally {
+      setPayfastLoading(false);
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -204,6 +252,14 @@ export function RoboticsFundingPanel() {
           <p className="text-sm font-semibold text-emerald-200">Direct Support Routes</p>
           <p className="mt-2 text-sm text-slate-300">Use the fastest path if you already know your contribution lane.</p>
           <div className="mt-4 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => void startPayfastCheckout(form.amount)}
+              disabled={payfastLoading}
+              className="rounded-md border border-yellow-200/50 bg-yellow-200/15 px-3 py-2 text-left text-sm font-semibold text-yellow-50 disabled:opacity-60"
+            >
+              {payfastLoading ? "Preparing PayFast checkout..." : "Donate with PayFast"}
+            </button>
             <a
               href="https://wa.me/27762982399?text=I%20want%20to%20donate%20to%20the%20robotics%20program."
               target="_blank"
