@@ -29,6 +29,11 @@ export function Footer() {
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-200">Quick Links</p>
           <ul className="mt-3 space-y-2 text-sm text-zinc-300">
             <li>
+              <Link className="hover:text-accent" href="/start">
+                Start
+              </Link>
+            </li>
+            <li>
               <Link className="hover:text-accent" href="/creator">
                 Creator
               </Link>
@@ -61,6 +66,11 @@ export function Footer() {
             <li>
               <Link className="hover:text-accent" href="/contact">
                 Contact
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-accent" href="/faq">
+                FAQ
               </Link>
             </li>
           </ul>
@@ -126,6 +136,14 @@ export function Footer() {
       <Container>
         <p className="mt-10 border-t border-zinc-800 pt-6 text-xs text-zinc-400">
           Copyright {year} LX Obsidian Labs. All rights reserved.
+          {" "}
+          <Link className="hover:text-accent" href="/legal/privacy">
+            Privacy
+          </Link>
+          {" "}•{" "}
+          <Link className="hover:text-accent" href="/legal/terms">
+            Terms
+          </Link>
         </p>
       </Container>
     </footer>
