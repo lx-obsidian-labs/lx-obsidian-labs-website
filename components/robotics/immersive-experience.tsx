@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 type Mode = "without" | "with";
 
 const capabilityNodes = [
+  {
+    id: "opencv",
+    label: "OpenCV Vision",
+    detail: "Computer-vision pipelines for edge detection, contour analysis, motion tracking, and task-state recognition.",
+    proof: "OpenCV-backed perception loops integrated into robotics workflows",
+  },
   {
     id: "perception",
     label: "Perception",
@@ -89,10 +95,17 @@ export function RoboticsImmersiveExperience() {
   const [activeNode, setActiveNode] = useState(capabilityNodes[0].id);
   const [pointer, setPointer] = useState({ x: 50, y: 50 });
   const [soundOn, setSoundOn] = useState(false);
+  const [lightLevel, setLightLevel] = useState(58);
+  const [motionLevel, setMotionLevel] = useState(52);
+  const [edgeSensitivity, setEdgeSensitivity] = useState(64);
+  const [voiceAlertsOn, setVoiceAlertsOn] = useState(true);
+  const [autoScanOn, setAutoScanOn] = useState(false);
+  const [detectedObject, setDetectedObject] = useState("none");
 
   const audioRef = useRef<AudioContext | null>(null);
   const oscRef = useRef<OscillatorNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
+  const lastSpokenRef = useRef("");
 
   useEffect(() => {
     if (!soundOn) {
@@ -140,6 +153,57 @@ export function RoboticsImmersiveExperience() {
 
   const coreStatement =
     "My vision is to take away unfulfilled resolutions and replace them with technology that is more consistent than our ever-changing minds.";
+
+  const visionStats = useMemo(() => {
+    const baseDetections = Math.round((lightLevel * 0.22 + motionLevel * 0.28 + edgeSensitivity * 0.18) / 5);
+    const detections = Math.max(2, Math.min(14, baseDetections));
+    const confidence = Math.max(62, Math.min(99, Math.round(58 + lightLevel * 0.25 + edgeSensitivity * 0.18 - motionLevel * 0.06)));
+    const fps = Math.max(18, Math.min(60, Math.round(16 + edgeSensitivity * 0.38 + lightLevel * 0.18)));
+    const contours = Math.max(12, Math.min(180, Math.round(edgeSensitivity * 1.6 + motionLevel * 0.9)));
+    return { detections, confidence, fps, contours };
+  }, [lightLevel, motionLevel, edgeSensitivity]);
+
+  const runVisionScan = useCallback(() => {
+    const candidates = ["cup", "bottle", "phone", "book", "keyboard", "none"];
+    const cupWeight = lightLevel > 35 && edgeSensitivity > 35 ? 3 : 1;
+    const weighted: string[] = [];
+
+    candidates.forEach((item) => {
+      const count = item === "cup" ? cupWeight : 1;
+      for (let i = 0; i < count; i += 1) weighted.push(item);
+    });
+
+    const picked = weighted[Math.floor(Math.random() * weighted.length)] || "none";
+    setDetectedObject(picked);
+  }, [edgeSensitivity, lightLevel]);
+
+  useEffect(() => {
+    if (!autoScanOn) return;
+    const timer = setInterval(() => runVisionScan(), 2600);
+    return () => clearInterval(timer);
+  }, [autoScanOn, runVisionScan]);
+
+  useEffect(() => {
+    if (!voiceAlertsOn) return;
+    if (detectedObject !== "cup") return;
+    if (lastSpokenRef.current === "cup") return;
+
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+
+    const utterance = new SpeechSynthesisUtterance("You are carrying a cup.");
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    synth.cancel();
+    synth.speak(utterance);
+    lastSpokenRef.current = "cup";
+  }, [detectedObject, voiceAlertsOn]);
+
+  useEffect(() => {
+    if (detectedObject !== "cup") {
+      lastSpokenRef.current = "";
+    }
+  }, [detectedObject]);
 
   return (
     <div className="space-y-10">
@@ -308,6 +372,139 @@ export function RoboticsImmersiveExperience() {
             <p className="mt-3 text-sm text-slate-300">{activeCapability.detail}</p>
             <p className="mt-4 rounded-md border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-sm text-cyan-100">{activeCapability.proof}</p>
           </article>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-700 bg-[#071326] p-6 text-white">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-cyan-300">OpenCV Vision Console</p>
+        <h3 className="mt-2 text-2xl font-bold">Interactive perception simulation for robotics vision.</h3>
+        <p className="mt-2 max-w-3xl text-sm text-slate-300">
+          This models how OpenCV-style processing supports robotics awareness: edge extraction, contour tracking, and stable detections under changing conditions.
+        </p>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          <div className="space-y-4 rounded-xl border border-slate-700 bg-slate-900/70 p-4">
+            <label className="block text-xs uppercase tracking-[0.12em] text-slate-300">
+              Light Level: {lightLevel}
+              <input
+                type="range"
+                min={10}
+                max={100}
+                value={lightLevel}
+                onChange={(event) => setLightLevel(Number(event.target.value))}
+                className="mt-2 w-full"
+              />
+            </label>
+
+            <label className="block text-xs uppercase tracking-[0.12em] text-slate-300">
+              Scene Motion: {motionLevel}
+              <input
+                type="range"
+                min={10}
+                max={100}
+                value={motionLevel}
+                onChange={(event) => setMotionLevel(Number(event.target.value))}
+                className="mt-2 w-full"
+              />
+            </label>
+
+            <label className="block text-xs uppercase tracking-[0.12em] text-slate-300">
+              Edge Sensitivity: {edgeSensitivity}
+              <input
+                type="range"
+                min={10}
+                max={100}
+                value={edgeSensitivity}
+                onChange={(event) => setEdgeSensitivity(Number(event.target.value))}
+                className="mt-2 w-full"
+              />
+            </label>
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button
+                onClick={runVisionScan}
+                className="rounded-md border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100"
+              >
+                Run Scan
+              </button>
+              <button
+                onClick={() => setAutoScanOn((prev) => !prev)}
+                className={
+                  autoScanOn
+                    ? "rounded-md border border-cyan-300 bg-cyan-300/20 px-3 py-1 text-xs font-semibold text-cyan-100"
+                    : "rounded-md border border-slate-600 bg-slate-950/60 px-3 py-1 text-xs font-semibold text-slate-300"
+                }
+              >
+                Auto Scan {autoScanOn ? "On" : "Off"}
+              </button>
+              <button
+                onClick={() => setVoiceAlertsOn((prev) => !prev)}
+                className={
+                  voiceAlertsOn
+                    ? "rounded-md border border-fuchsia-300 bg-fuchsia-300/20 px-3 py-1 text-xs font-semibold text-fuchsia-100"
+                    : "rounded-md border border-slate-600 bg-slate-950/60 px-3 py-1 text-xs font-semibold text-slate-300"
+                }
+              >
+                Voice Alerts {voiceAlertsOn ? "On" : "Off"}
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-700 bg-slate-900/70 p-4 lg:col-span-2">
+            <div className="relative h-56 overflow-hidden rounded-lg border border-slate-700 bg-[#020712]">
+              <motion.div
+                className="absolute inset-0 opacity-40"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, rgba(34,211,238,0.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(34,211,238,0.22) 1px, transparent 1px)",
+                  backgroundSize: "22px 22px",
+                }}
+                animate={{ backgroundPosition: ["0px 0px", "22px 22px"] }}
+                transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              />
+
+              {Array.from({ length: Math.min(visionStats.detections, 8) }).map((_, index) => {
+                const top = 12 + ((index * 19 + motionLevel) % 64);
+                const left = 6 + ((index * 13 + edgeSensitivity) % 74);
+                const width = 14 + ((index * 7 + lightLevel) % 18);
+                const height = 12 + ((index * 9 + motionLevel) % 16);
+                return (
+                  <motion.div
+                    key={`box-${index}`}
+                    className="absolute border border-cyan-300/80 bg-cyan-300/10"
+                    style={{ top: `${top}%`, left: `${left}%`, width: `${width}%`, height: `${height}%` }}
+                    animate={{ opacity: [0.45, 0.9, 0.45] }}
+                    transition={{ duration: 1.2 + index * 0.12, repeat: Number.POSITIVE_INFINITY }}
+                  />
+                );
+              })}
+
+              <div className="absolute left-0 top-0 w-full border-t border-cyan-300/40" style={{ transform: `translateY(${(motionLevel / 100) * 180}px)` }} />
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <article className="rounded-md border border-slate-700 bg-slate-950/60 p-3">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">Detections</p>
+                <p className="mt-1 text-lg font-bold text-cyan-100">{visionStats.detections}</p>
+              </article>
+              <article className="rounded-md border border-slate-700 bg-slate-950/60 p-3">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">Confidence</p>
+                <p className="mt-1 text-lg font-bold text-cyan-100">{visionStats.confidence}%</p>
+              </article>
+              <article className="rounded-md border border-slate-700 bg-slate-950/60 p-3">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">Vision FPS</p>
+                <p className="mt-1 text-lg font-bold text-cyan-100">{visionStats.fps}</p>
+              </article>
+              <article className="rounded-md border border-slate-700 bg-slate-950/60 p-3">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">Contours</p>
+                <p className="mt-1 text-lg font-bold text-cyan-100">{visionStats.contours}</p>
+              </article>
+            </div>
+            <p className="mt-3 text-xs text-cyan-100">
+              Detected object: <span className="font-semibold uppercase">{detectedObject}</span>
+              {detectedObject === "cup" ? " - Voice alert active: \"You are carrying a cup.\"" : ""}
+            </p>
+          </div>
         </div>
       </section>
 
