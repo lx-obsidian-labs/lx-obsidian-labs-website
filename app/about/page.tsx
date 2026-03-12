@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Section } from "@/components/layout/section";
 import { ProcessExplorer } from "@/components/interactive/process-explorer";
 import { companyContent, roboticsRoadmap } from "@/content/site";
@@ -69,6 +70,9 @@ export default function AboutPage() {
       <Section className="bg-white pt-0">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Strategic Transition</p>
         <h2 className="mt-3 max-w-3xl text-3xl font-bold md:text-4xl">Roadmap toward applied robotics by 2028.</h2>
+        <Link href="/robotics" className="mt-3 inline-block text-sm font-semibold text-accent hover:underline">
+          Read Nathan Vilane&apos;s Robotics Vision
+        </Link>
         <div className="mt-6 space-y-3">
           {roboticsRoadmap.map((item, index) => (
             <details key={item.year} className="rounded-xl border bg-surface p-5" open={index === 0}>

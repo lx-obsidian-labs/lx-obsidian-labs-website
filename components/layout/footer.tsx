@@ -65,7 +65,7 @@ export function Footer() {
             </li>
           </ul>
           <p className="mt-3 text-xs text-zinc-400">
-            Explore: <Link className="hover:text-accent" href="/lab">Lab</Link> • <Link className="hover:text-accent" href="/resources">Resources</Link> • <Link className="hover:text-accent" href="/insights">Insights</Link>
+            Explore: <Link className="hover:text-accent" href="/lab">Lab</Link> • <Link className="hover:text-accent" href="/robotics">Robotics</Link> • <Link className="hover:text-accent" href="/resources">Resources</Link> • <Link className="hover:text-accent" href="/insights">Insights</Link>
           </p>
         </div>
 
