@@ -12,7 +12,9 @@ type SupportForm = {
   email: string;
   company: string;
   supportType: "Once-off Donation" | "Monthly Backer" | "Corporate Sponsor";
+  frequency: "Once-off" | "Monthly";
   amount: string;
+  purpose: "Sensors" | "Vision R&D" | "Safety Testing" | "General Program";
   message: string;
   website: string;
 };
@@ -22,10 +24,14 @@ const defaultForm: SupportForm = {
   email: "",
   company: "",
   supportType: "Once-off Donation",
+  frequency: "Once-off",
   amount: "R500",
+  purpose: "General Program",
   message: "I want to support the robotics program and would like the next step.",
   website: "",
 };
+
+const amountPresets = [250, 500, 1000, 2500, 5000];
 
 const supportLanes = [
   {
@@ -117,13 +123,13 @@ export function RoboticsFundingPanel() {
       const payload = {
         projectType: "Robotics Program Support",
         budgetRange: form.amount,
-        timeline: "Immediate",
+        timeline: form.frequency,
         name: form.name,
         email: form.email,
         company: form.company,
-        currentTools: `Support lane: ${form.supportType}`,
+        currentTools: `Support lane: ${form.supportType} | Purpose: ${form.purpose}`,
         primaryGoal: "Fund robotics research and prototype development",
-        message: `${form.message}\n\nSupport Type: ${form.supportType}`,
+        message: `${form.message}\n\nSupport Type: ${form.supportType}\nPurpose: ${form.purpose}\nFrequency: ${form.frequency}`,
         website: form.website,
         startedAt,
       };
@@ -178,6 +184,7 @@ export function RoboticsFundingPanel() {
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-slate-600 bg-[#091a31] p-4">
           <p className="text-sm font-semibold text-emerald-200">Request Donation Details</p>
+          <p className="text-xs text-slate-300">Complete this form for sponsorship onboarding, EFT workflow, and direct support tracking.</p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <input
@@ -213,6 +220,40 @@ export function RoboticsFundingPanel() {
               <option>Monthly Backer</option>
               <option>Corporate Sponsor</option>
             </select>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <select
+              value={form.frequency}
+              onChange={(event) => setForm((prev) => ({ ...prev, frequency: event.target.value as SupportForm["frequency"] }))}
+              className="h-10 rounded-md border border-slate-500 bg-[#0a223f] px-3 text-sm text-white"
+            >
+              <option>Once-off</option>
+              <option>Monthly</option>
+            </select>
+            <select
+              value={form.purpose}
+              onChange={(event) => setForm((prev) => ({ ...prev, purpose: event.target.value as SupportForm["purpose"] }))}
+              className="h-10 rounded-md border border-slate-500 bg-[#0a223f] px-3 text-sm text-white"
+            >
+              <option>Sensors</option>
+              <option>Vision R&D</option>
+              <option>Safety Testing</option>
+              <option>General Program</option>
+            </select>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {amountPresets.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, amount: `R${preset}` }))}
+                className="rounded-full border border-emerald-300/40 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-100"
+              >
+                R{preset}
+              </button>
+            ))}
           </div>
 
           <input
@@ -260,6 +301,7 @@ export function RoboticsFundingPanel() {
             >
               {payfastLoading ? "Preparing PayFast checkout..." : "Donate with PayFast"}
             </button>
+            <p className="text-xs text-slate-300">Use PayFast for instant payments. For EFT and sponsor agreements, submit the support form.</p>
             <a
               href="https://wa.me/27762982399?text=I%20want%20to%20donate%20to%20the%20robotics%20program."
               target="_blank"

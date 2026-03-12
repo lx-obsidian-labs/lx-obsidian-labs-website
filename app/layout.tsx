@@ -5,6 +5,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { FloatingActions } from "@/components/interactive/floating-actions";
+import { GlobalDonationForm } from "@/components/interactive/global-donation-form";
 import { companyContent } from "@/content/site";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lxobsidianlabs.vercel.app";
@@ -115,6 +116,7 @@ export default function RootLayout({
         />
         <Navbar />
         <main className="relative min-h-[60vh]">{children}</main>
+        <GlobalDonationForm />
         <Footer />
         <FloatingActions />
       </body>
