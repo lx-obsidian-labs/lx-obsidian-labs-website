@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Section } from "@/components/layout/section";
 import { RoboticsImmersiveExperience } from "@/components/robotics/immersive-experience";
+import { RoboticsFundingPanel } from "@/components/robotics/funding-panel";
 
 export const metadata: Metadata = {
   title: "Robotics Vision",
@@ -13,6 +14,9 @@ export default function RoboticsPage() {
     <>
       <Section className="bg-[#020611] py-12 text-white md:py-16">
         <RoboticsImmersiveExperience />
+      </Section>
+      <Section className="bg-[#020611] pb-16 text-white">
+        <RoboticsFundingPanel />
       </Section>
     </>
   );
