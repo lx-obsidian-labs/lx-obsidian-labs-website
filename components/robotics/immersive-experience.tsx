@@ -101,11 +101,19 @@ export function RoboticsImmersiveExperience() {
   const [voiceAlertsOn, setVoiceAlertsOn] = useState(true);
   const [autoScanOn, setAutoScanOn] = useState(false);
   const [detectedObject, setDetectedObject] = useState("none");
+  const [cameraOn, setCameraOn] = useState(false);
+  const [visionStatus, setVisionStatus] = useState("Idle");
+  const [detections, setDetections] = useState<Array<{ label: string; score: number; bbox: [number, number, number, number] }>>([]);
 
   const audioRef = useRef<AudioContext | null>(null);
   const oscRef = useRef<OscillatorNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
   const lastSpokenRef = useRef("");
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const modelRef = useRef<unknown>(null);
+  const rafRef = useRef<number | null>(null);
+  const lastInferRef = useRef(0);
 
   useEffect(() => {
     if (!soundOn) {
@@ -204,6 +212,106 @@ export function RoboticsImmersiveExperience() {
       lastSpokenRef.current = "";
     }
   }, [detectedObject]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    };
+  }, []);
+
+  const speakDetection = useCallback((label: string) => {
+    if (!voiceAlertsOn) return;
+    if (lastSpokenRef.current === label) return;
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const phrase = label === "cup" ? "You are carrying a cup." : `I can see a ${label}.`;
+    const utterance = new SpeechSynthesisUtterance(phrase);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    synth.cancel();
+    synth.speak(utterance);
+    lastSpokenRef.current = label;
+  }, [voiceAlertsOn]);
+
+  const ensureModel = useCallback(async () => {
+    if (modelRef.current) return modelRef.current as { detect: (input: HTMLVideoElement) => Promise<Array<{ class: string; score: number; bbox: [number, number, number, number] }>> };
+
+    setVisionStatus("Loading vision model...");
+    const tf = await import("@tensorflow/tfjs");
+    await tf.ready();
+    const coco = await import("@tensorflow-models/coco-ssd");
+    const loaded = await coco.load();
+    modelRef.current = loaded;
+    setVisionStatus("Model ready");
+    return loaded;
+  }, []);
+
+  const detectLoop = useCallback(async () => {
+    const video = videoRef.current;
+    if (!cameraOn || !video || !modelRef.current) return;
+
+    const now = performance.now();
+    if (now - lastInferRef.current > 900 && video.readyState >= 2) {
+      lastInferRef.current = now;
+      try {
+        const model = modelRef.current as { detect: (input: HTMLVideoElement) => Promise<Array<{ class: string; score: number; bbox: [number, number, number, number] }>> };
+        const results = await model.detect(video);
+        const mapped = results
+          .filter((item) => item.score > 0.45)
+          .slice(0, 4)
+          .map((item) => ({ label: item.class, score: item.score, bbox: item.bbox }));
+        setDetections(mapped);
+        const top = mapped[0]?.label || "none";
+        setDetectedObject(top);
+        if (top !== "none") speakDetection(top);
+        setVisionStatus(top === "none" ? "Scanning... no confident object yet" : `Detected: ${top}`);
+      } catch {
+        setVisionStatus("Vision inference error");
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(() => {
+      void detectLoop();
+    });
+  }, [cameraOn, speakDetection]);
+
+  const startCameraVision = useCallback(async () => {
+    try {
+      setVisionStatus("Starting camera...");
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+      streamRef.current = stream;
+
+      const video = videoRef.current;
+      if (!video) return;
+      video.srcObject = stream;
+      await video.play();
+
+      await ensureModel();
+      setCameraOn(true);
+      setVisionStatus("Live vision running");
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        void detectLoop();
+      });
+    } catch {
+      setVisionStatus("Camera permission denied or unavailable");
+    }
+  }, [detectLoop, ensureModel]);
+
+  const stopCameraVision = useCallback(() => {
+    setCameraOn(false);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setVisionStatus("Camera stopped");
+    setDetections([]);
+  }, []);
 
   return (
     <div className="space-y-10">
@@ -381,6 +489,70 @@ export function RoboticsImmersiveExperience() {
         <p className="mt-2 max-w-3xl text-sm text-slate-300">
           This models how OpenCV-style processing supports robotics awareness: edge extraction, contour tracking, and stable detections under changing conditions.
         </p>
+
+        <div className="mt-4 rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Live Object Detection + Voice Output</p>
+          <p className="mt-2 text-sm text-cyan-100">
+            Start camera vision and the system will speak detected objects in real time. If a cup is seen, it will say: &quot;You are carrying a cup.&quot;
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {!cameraOn ? (
+              <button onClick={() => void startCameraVision()} className="rounded-md border border-cyan-300 bg-cyan-300/20 px-3 py-1 text-xs font-semibold text-cyan-100">
+                Start Camera Vision
+              </button>
+            ) : (
+              <button onClick={stopCameraVision} className="rounded-md border border-rose-300 bg-rose-300/20 px-3 py-1 text-xs font-semibold text-rose-100">
+                Stop Camera Vision
+              </button>
+            )}
+            <span className="rounded-md border border-slate-600 bg-slate-900/70 px-3 py-1 text-xs text-slate-300">Status: {visionStatus}</span>
+          </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-black">
+              <video ref={videoRef} className="h-[220px] w-full object-cover" playsInline muted />
+              {cameraOn ? (
+                <div className="pointer-events-none absolute inset-0">
+                  {detections.map((item, index) => {
+                    const [x, y, w, h] = item.bbox;
+                    const videoWidth = videoRef.current?.videoWidth || 1;
+                    const videoHeight = videoRef.current?.videoHeight || 1;
+                    const left = (x / videoWidth) * 100;
+                    const top = (y / videoHeight) * 100;
+                    const width = (w / videoWidth) * 100;
+                    const height = (h / videoHeight) * 100;
+                    return (
+                      <div
+                        key={`${item.label}-${index}`}
+                        className="absolute border border-cyan-300"
+                        style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
+                      >
+                        <span className="absolute -top-5 left-0 rounded bg-cyan-300/90 px-1 text-[10px] font-semibold text-[#001018]">
+                          {item.label} {(item.score * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="rounded-lg border border-slate-700 bg-slate-900/70 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300">Detected Objects</p>
+              <ul className="mt-2 space-y-2 text-sm text-slate-200">
+                {detections.length ? (
+                  detections.map((item, index) => (
+                    <li key={`${item.label}-${index}`}>
+                      - {item.label} ({(item.score * 100).toFixed(0)}%)
+                    </li>
+                  ))
+                ) : (
+                  <li>- No live detections yet</li>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-3">
           <div className="space-y-4 rounded-xl border border-slate-700 bg-slate-900/70 p-4">
