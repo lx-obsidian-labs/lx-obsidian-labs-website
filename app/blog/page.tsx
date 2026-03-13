@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Section } from "@/components/layout/section";
+import { AdsenseUnit } from "@/components/ads/adsense-unit";
 import { techBlogPosts } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
+  const blogAdSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG;
+
   return (
     <>
       <Section className="bg-white py-20">
@@ -19,6 +22,7 @@ export default function BlogPage() {
       </Section>
 
       <Section className="bg-surface pt-0">
+        <AdsenseUnit slot={blogAdSlot} className="mb-6 min-h-[110px]" format="horizontal" />
         <div className="grid gap-6 md:grid-cols-3">
           {techBlogPosts.map((post) => (
             <article key={post.slug} className="rounded-xl border bg-white p-6">

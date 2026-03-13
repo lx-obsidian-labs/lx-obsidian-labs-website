@@ -12,6 +12,7 @@ import { testimonials } from "@/content/site";
 import { StructuredData } from "@/components/structured-data";
 import { HomeCommandCenter } from "@/components/home/home-command-center";
 import { HomeValueStrip } from "@/components/home/home-value-strip";
+import { AdsenseUnit } from "@/components/ads/adsense-unit";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -31,6 +32,8 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
+  const homeAdSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME;
+
   return (
     <>
       <StructuredData />
@@ -46,6 +49,10 @@ export default function Home() {
         <Reveal>
           <HomeValueStrip />
         </Reveal>
+      </Section>
+
+      <Section className="bg-white py-0">
+        <AdsenseUnit slot={homeAdSlot} className="min-h-[120px]" format="horizontal" />
       </Section>
 
       <Section id="services-preview" className="bg-white">
