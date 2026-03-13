@@ -109,6 +109,12 @@ export default function RootLayout({
           </>
         ) : null}
         <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8968817915668565"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+        <Script
           id="org-jsonld"
           type="application/ld+json"
           strategy="afterInteractive"
