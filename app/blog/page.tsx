@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
-  const blogAdSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG;
+  const blogAdSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG || "5015917981";
 
   return (
     <>
@@ -22,7 +22,7 @@ export default function BlogPage() {
       </Section>
 
       <Section className="bg-surface pt-0">
-        <AdsenseUnit slot={blogAdSlot} className="mb-6 min-h-[110px]" format="horizontal" />
+        <AdsenseUnit slot={blogAdSlot} className="mb-6 min-h-[110px]" format="fluid" layout="in-article" centered />
         <div className="grid gap-6 md:grid-cols-3">
           {techBlogPosts.map((post) => (
             <article key={post.slug} className="rounded-xl border bg-white p-6">

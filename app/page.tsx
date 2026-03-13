@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  const homeAdSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME;
+  const homeAdSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME || "7941464222";
 
   return (
     <>
@@ -52,7 +52,7 @@ export default function Home() {
       </Section>
 
       <Section className="bg-white py-0">
-        <AdsenseUnit slot={homeAdSlot} className="min-h-[120px]" format="horizontal" />
+        <AdsenseUnit slot={homeAdSlot} className="min-h-[120px]" format="fluid" layoutKey="-fb+5w+4e-db+86" />
       </Section>
 
       <Section id="services-preview" className="bg-white">
