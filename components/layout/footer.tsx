@@ -34,6 +34,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link className="hover:text-accent" href="/apps">
+                Apps
+              </Link>
+            </li>
+            <li>
               <Link className="hover:text-accent" href="/creator">
                 Creator
               </Link>

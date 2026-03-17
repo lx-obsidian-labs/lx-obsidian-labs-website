@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { route: "/services", lastModified: "2026-03-05", priority: 0.9 },
     { route: "/services/design-order", lastModified: "2026-03-05", priority: 0.9 },
     { route: "/start", lastModified: "2026-03-12", priority: 0.9 },
+    { route: "/apps", lastModified: "2026-03-17", priority: 0.85 },
     { route: "/faq", lastModified: "2026-03-12", priority: 0.65 },
     { route: "/legal/privacy", lastModified: "2026-03-12", priority: 0.4 },
     { route: "/legal/terms", lastModified: "2026-03-12", priority: 0.4 },
