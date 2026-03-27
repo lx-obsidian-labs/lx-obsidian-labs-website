@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/layout/section";
 
@@ -7,7 +7,11 @@ export function Hero() {
   return (
     <Section className="bg-[#09090b] py-20 md:py-28">
       <div className="max-w-4xl">
-        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-accent">LX Obsidian Labs</p>
+        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-accent">Nathan Vilane | LX Obsidian Labs</p>
+        <p className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-emerald-400">
+          <Cpu className="h-4 w-4" />
+          Passion: Building the Future of Robotics
+        </p>
         <h1 className="text-balance text-4xl font-extrabold leading-tight text-white md:text-6xl">
           Order high-conversion designs fast, then scale with systems.
         </h1>
@@ -31,6 +35,15 @@ export function Hero() {
           >
             <Link href="/creator" className="inline-flex items-center gap-2">
               Try Obsidian Creator <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            className="w-full border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 sm:w-auto"
+          >
+            <Link href="/robotics" className="inline-flex items-center gap-2">
+              Explore My Robotics Vision <Cpu className="h-4 w-4" />
             </Link>
           </Button>
         </div>
