@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const proofItems = [
-  { label: "Build Modes", value: "3", detail: "AI Creator, Managed Delivery, Fast Track Design" },
-  { label: "Core Verticals", value: "Software + Design + Ops", detail: "Integrated systems instead of disconnected execution" },
-  { label: "Primary Outcome", value: "Faster Launches", detail: "Prompt-to-output workflows with versioned project history" },
-  { label: "Support Route", value: "WhatsApp + Project Brief", detail: "Clear customer care path from first request" },
+  { label: "Focus", value: "Software + Design", detail: "Build faster with integrated systems" },
+  { label: "Outcome", value: "Faster Launches", detail: "Prompt-to-output with versioned history" },
+  { label: "Support", value: "WhatsApp", detail: "Direct response within 24 hours" },
+  { label: "Vision", value: "Robotics 2028", detail: "Applied research coming soon" },
 ];
 
 export function HomeValueStrip() {
@@ -12,11 +12,11 @@ export function HomeValueStrip() {
     <div className="rounded-2xl border bg-surface p-6 md:p-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Why This Works</p>
-          <h2 className="mt-2 text-2xl font-bold md:text-3xl">Everything is built to move users from idea to execution.</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Why Work With Us</p>
+          <h2 className="mt-2 text-2xl font-bold md:text-3xl">Built for results, not complexity.</h2>
         </div>
         <Link href="/contact#start-form" className="text-sm font-semibold text-accent hover:underline">
-          Start your brief
+          Get in touch
         </Link>
       </div>
 

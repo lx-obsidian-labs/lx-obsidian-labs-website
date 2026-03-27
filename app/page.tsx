@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { testimonials } from "@/content/site";
 import { StructuredData } from "@/components/structured-data";
-import { HomeCommandCenter } from "@/components/home/home-command-center";
 import { HomeValueStrip } from "@/components/home/home-value-strip";
 import { AdsenseUnit } from "@/components/ads/adsense-unit";
 
@@ -21,7 +20,7 @@ const ContactForm = dynamic(
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "Order designs fast with LX Obsidian Labs, then scale into software systems and AI-assisted workflows.",
+    "LX Obsidian Labs - Nathan's software, design, and robotics company. Order designs fast, build systems, and explore our robotics vision.",
   alternates: { canonical: "/" },
   openGraph: {
     images: [{ url: "/opengraph-image" }],
@@ -39,12 +38,6 @@ export default function Home() {
       <StructuredData />
       <Hero />
 
-      <Section className="bg-white pt-0">
-        <Reveal>
-          <HomeCommandCenter />
-        </Reveal>
-      </Section>
-
       <Section className="bg-surface pt-0">
         <Reveal>
           <HomeValueStrip />
@@ -60,7 +53,7 @@ export default function Home() {
           <div className="mb-10 flex items-end justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Services</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Build with the right systems from day one.</h2>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">What we build.</h2>
             </div>
             <Button asChild variant="secondary" className="hidden sm:inline-flex">
               <Link href="/services">View All</Link>
@@ -81,10 +74,10 @@ export default function Home() {
           <div className="mb-10 flex items-end justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Portfolio</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Recent projects across software, design, and strategy.</h2>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Recent work.</h2>
             </div>
             <Button asChild variant="secondary" className="hidden sm:inline-flex">
-              <Link href="/portfolio">See Portfolio</Link>
+              <Link href="/portfolio">See All</Link>
             </Button>
           </div>
         </Reveal>
@@ -101,15 +94,15 @@ export default function Home() {
         <Reveal>
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Knowledge & Updates</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Explore technology blog posts and latest platform news.</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Blog & News</p>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Latest updates.</h2>
             </div>
             <div className="flex gap-3">
               <Button asChild variant="secondary">
-                <Link href="/blog">View Blog</Link>
+                <Link href="/blog">Blog</Link>
               </Button>
               <Button asChild>
-                <Link href="/news">View News</Link>
+                <Link href="/news">News</Link>
               </Button>
             </div>
           </div>
@@ -122,7 +115,7 @@ export default function Home() {
               <h3 className="mt-2 text-xl font-semibold">{techBlogPosts[0].title}</h3>
               <p className="mt-3 text-sm text-muted">{techBlogPosts[0].excerpt}</p>
               <Link href={`/blog/${techBlogPosts[0].slug}`} className="mt-4 inline-block text-sm font-semibold text-[#111111] hover:text-accent">
-                Read Blog Article
+                Read Article
               </Link>
             </article>
           </Reveal>
@@ -133,68 +126,42 @@ export default function Home() {
               <h3 className="mt-2 text-xl font-semibold">{newsUpdates[0].title}</h3>
               <p className="mt-3 text-sm text-muted">{newsUpdates[0].excerpt}</p>
               <Link href={`/news/${newsUpdates[0].slug}`} className="mt-4 inline-block text-sm font-semibold text-[#111111] hover:text-accent">
-                Read News Update
+                Read Update
               </Link>
             </article>
           </Reveal>
         </div>
       </Section>
 
-      <Section id="about-preview" className="bg-white">
+      <Section className="bg-white">
         <Reveal>
           <div className="grid gap-10 rounded-2xl border bg-white p-8 md:grid-cols-2 md:p-12">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Why LX Obsidian Labs</p>
-              <h2 className="mt-3 text-3xl font-bold">We combine engineering precision with design and business strategy.</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">About</p>
+              <h2 className="mt-3 text-3xl font-bold">Engineering + Design + Robotics</h2>
             </div>
             <div className="space-y-4 text-sm text-muted">
               <p>
-                Our multidisciplinary model helps businesses avoid disconnected execution. Strategy, identity, and systems are aligned from the
-                beginning.
+                Nathan Vilane founded LX Obsidian Labs to build practical software, design systems, and operational tools for businesses.
               </p>
               <p>
-                The result is faster delivery, lower complexity, and technology foundations built for sustainable growth.
+                Our focus: fast delivery, clear outcomes, and technology that scales with your business.
               </p>
               <p>
-                We keep every engagement practical: less noise, faster implementation, and outcomes your team can measure.
+                <strong>Coming 2028:</strong> Applied robotics research and development as resources expand.
               </p>
               <Button asChild variant="secondary">
-                <Link href="/about">Learn More About Us</Link>
+                <Link href="/about">Learn More</Link>
               </Button>
             </div>
           </div>
         </Reveal>
       </Section>
 
-      <Section className="bg-[#111111] py-20 text-white">
+      <Section className="bg-white">
         <Reveal>
-          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Call To Action</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to move from idea to a shipped output?</h2>
-              <p className="mt-2 max-w-2xl text-sm text-zinc-300">Start with design if you need fast creative delivery, then expand into build and automation.</p>
-            </div>
-            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href="/services/design-order">Order Designs</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="w-full border-zinc-200 text-zinc-100 hover:bg-zinc-100 hover:text-[#111111] sm:w-auto"
-              >
-                <Link href="/creator/agent">Run Agent Workspace</Link>
-              </Button>
-            </div>
-          </div>
-        </Reveal>
-      </Section>
-
-      <Section className="bg-white pt-0">
-        <Reveal>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Trusted Outcomes</p>
-          <h2 className="mt-3 text-3xl font-bold md:text-4xl">What clients say about working with us.</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Testimonials</p>
+          <h2 className="mt-3 text-3xl font-bold md:text-4xl">What clients say.</h2>
         </Reveal>
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           {testimonials.slice(0, 3).map((testimonial, index) => (
@@ -212,7 +179,8 @@ export default function Home() {
         <Reveal>
           <div className="mb-8">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Contact</p>
-            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Tell us what you need, and we will map your best start path in one response.</h2>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to start?</h2>
+            <p className="mt-3 text-muted">Tell us what you need. We will get back to you within 24 hours.</p>
           </div>
         </Reveal>
         <ContactForm />
