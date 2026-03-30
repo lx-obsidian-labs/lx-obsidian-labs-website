@@ -16,11 +16,11 @@ export function Footer() {
             Robotics vision coming 2028.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link href="/services/design-order" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
-              Order Designs
+            <Link href="/apps" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
+              Get BIMAX
             </Link>
-            <Link href="/robotics" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
-              Robotics
+            <Link href="/offers" className="rounded-md border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-accent hover:text-accent">
+              Offers
             </Link>
           </div>
         </div>
@@ -28,11 +28,11 @@ export function Footer() {
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-200">Navigate</p>
           <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-            <li><Link className="hover:text-accent" href="/start">Start</Link></li>
             <li><Link className="hover:text-accent" href="/apps">Apps</Link></li>
+            <li><Link className="hover:text-accent" href="/offers">Offers</Link></li>
+            <li><Link className="hover:text-accent" href="/directory">Directory</Link></li>
             <li><Link className="hover:text-accent" href="/services">Services</Link></li>
             <li><Link className="hover:text-accent" href="/portfolio">Portfolio</Link></li>
-            <li><Link className="hover:text-accent" href="/blog">Blog</Link></li>
             <li><Link className="hover:text-accent" href="/robotics">Robotics</Link></li>
             <li><Link className="hover:text-accent" href="/contact">Contact</Link></li>
           </ul>
@@ -41,11 +41,10 @@ export function Footer() {
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-200">Resources</p>
           <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+            <li><Link className="hover:text-accent" href="/blog">Blog</Link></li>
+            <li><Link className="hover:text-accent" href="/news">News</Link></li>
             <li><Link className="hover:text-accent" href="/about">About</Link></li>
             <li><Link className="hover:text-accent" href="/faq">FAQ</Link></li>
-            <li><Link className="hover:text-accent" href="/lab">Lab</Link></li>
-            <li><Link className="hover:text-accent" href="/resources">Downloads</Link></li>
-            <li><Link className="hover:text-accent" href="/insights">Insights</Link></li>
           </ul>
         </div>
 

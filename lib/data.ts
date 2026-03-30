@@ -1,12 +1,10 @@
 export const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/start", label: "Start" },
   { href: "/apps", label: "Apps" },
-  { href: "/creator", label: "Creator" },
+  { href: "/offers", label: "Offers" },
+  { href: "/directory", label: "Directory" },
   { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },
-  { href: "/blog", label: "Blog" },
-  { href: "/news", label: "News" },
   { href: "/robotics", label: "Robotics" },
   { href: "/contact", label: "Contact" },
 ];
@@ -411,6 +409,16 @@ export type TechBlogPost = {
 
 export const techBlogPosts: TechBlogPost[] = [
   {
+    slug: "bimax-audio-player-launch",
+    title: "BIMAX Audio Player - Launched",
+    excerpt: "Beautiful YouTube Music Player for Windows is now available. Stream millions of songs with a stunning dark neon interface.",
+    content:
+      "BIMAX Audio Player is now live! For just $2, you get offline mode, smart search, speed control, sleep timer, A-B repeat, and lyrics display. No subscription, no ads - just pure music.",
+    updatedAt: "2026-03-30",
+    readTime: "3 min",
+    topic: "Product Launch",
+  },
+  {
     slug: "engineering-agentic-workflows-for-real-business-use",
     title: "Engineering Agentic Workflows for Real Business Use",
     excerpt: "Agentic systems become useful when they can plan, execute, and persist outputs across real workflows.",
@@ -422,7 +430,7 @@ export const techBlogPosts: TechBlogPost[] = [
   },
   {
     slug: "designing-conversion-pages-that-dont-feel-generic",
-    title: "Designing Conversion Pages That Don’t Feel Generic",
+    title: "Designing Conversion Pages That Don't Feel Generic",
     excerpt: "Conversion and brand expression can coexist when hierarchy, proof, and CTA paths are intentional.",
     content:
       "Most landing pages fail because they stack sections without strategic sequencing. Strong conversion pages establish context quickly, provide trust anchors, and reduce decision friction with clear next actions. A reliable approach is to align page structure with user intent: orientation, proof, decision support, then action.",
@@ -453,6 +461,33 @@ export type NewsUpdate = {
 
 export const newsUpdates: NewsUpdate[] = [
   {
+    slug: "business-directory-launch",
+    title: "South African Business Directory Now Live",
+    excerpt: "Get your business listed in our new directory. Featured listings available from R500/month.",
+    content:
+      "We've launched a business directory for South African businesses. Basic listings start at R200/month with featured options at R500/month. Get your business in front of more customers today.",
+    updatedAt: "2026-03-30",
+    category: "Release",
+  },
+  {
+    slug: "flash-sales-launched",
+    title: "Limited Offers & Flash Sales Now Available",
+    excerpt: "Check out our new offers page for exclusive deals on BIMAX apps and design services.",
+    content:
+      "We've added a new offers page with limited-time deals. Current offers include BIMAX launch special (80% off), free SEO audits with web projects, and design service bundles. More deals coming soon!",
+    updatedAt: "2026-03-30",
+    category: "Release",
+  },
+  {
+    slug: "bimax-launch",
+    title: "BIMAX Audio Player - Now Available for $2",
+    excerpt: "Beautiful YouTube Music Player for Windows launched at just $2 - lowest price ever!",
+    content:
+      "BIMAX Audio Player is now live! For just $2, you get a stunning dark neon interface, offline mode, smart search, speed control, sleep timer, A-B repeat, and lyrics display. No ads, no subscription - just pure music enjoyment.",
+    updatedAt: "2026-03-28",
+    category: "Release",
+  },
+  {
     slug: "creator-ide-workspace-update",
     title: "Creator Workspace Updated With IDE-Style Editing",
     excerpt: "Projects now support file-style draft editing for faster iteration before persisted AI edits.",
@@ -469,14 +504,5 @@ export const newsUpdates: NewsUpdate[] = [
       "We introduced transient mode to reduce setup friction. Users can generate websites and documents without immediate database configuration. Outputs remain usable via copy/download actions, while persistence becomes available automatically when DATABASE_URL is configured.",
     updatedAt: "2026-03-10",
     category: "Platform",
-  },
-  {
-    slug: "homepage-navigation-and-start-path-upgrade",
-    title: "Homepage Start Paths and Navigation Improved",
-    excerpt: "The homepage now routes visitors faster into Creator, managed delivery, or design fast-track flows.",
-    content:
-      "We restructured the homepage with clearer start paths and stronger conversion guidance. Users now see direct routes based on objective, urgency, and service intent. This reduces decision friction and improves onboarding into the most relevant workflow.",
-    updatedAt: "2026-03-09",
-    category: "Company",
   },
 ];
