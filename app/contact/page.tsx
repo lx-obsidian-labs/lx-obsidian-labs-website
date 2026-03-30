@@ -5,8 +5,9 @@ import { Section } from "@/components/layout/section";
 import { DeliverySla } from "@/components/sections/delivery-sla";
 
 export const metadata: Metadata = {
-  title: "Contact",
-  description: "Contact LX Obsidian Labs to discuss software development, design, or business systems projects.",
+  title: "Contact LX Obsidian Labs | Get a Free Quote Today",
+  description: "Contact LX Obsidian Labs for software development, web design, graphic design, and business consultancy in South Africa. Get a free quote within 24 hours.",
+  keywords: ["contact", "get quote", "free quote", "software development", "web design", "south africa"],
   alternates: { canonical: "/contact" },
   openGraph: { images: [{ url: "/contact/opengraph-image" }] },
   twitter: { images: ["/contact/opengraph-image"] },

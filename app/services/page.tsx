@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { customerNeedPaths, services } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Software Development, Graphic Design & Business Consultancy | LX Obsidian Labs",
   description:
-    "Explore software development, graphic design, and business consultancy services from LX Obsidian Labs.",
+    "Professional software development, web design, graphic design, and business consultancy in South Africa. Custom web apps, brand identity, automation. Get a quote today.",
   alternates: { canonical: "/services" },
+  keywords: ["software development", "web design", "graphic design", "business consultancy", "South Africa", "web application development", "brand identity", "automation", "custom software"],
   openGraph: { images: [{ url: "/services/opengraph-image" }] },
   twitter: { images: ["/services/opengraph-image"] },
 };
