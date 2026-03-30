@@ -5,7 +5,7 @@ import { Hero } from "@/components/home/hero";
 import { Section } from "@/components/layout/section";
 import { ServiceCard } from "@/components/cards/service-card";
 import { PortfolioCard } from "@/components/cards/portfolio-card";
-import { services, portfolioProjects } from "@/lib/data";
+import { services, portfolioProjects, techBlogPosts, newsUpdates } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { StructuredData } from "@/components/structured-data";
@@ -37,7 +37,7 @@ const whyChooseUs = [
   { title: "Fast Delivery", description: "Projects delivered on time, every time." },
   { title: "Clear Pricing", description: "No hidden fees. What you see is what you pay." },
   { title: "Local Support", description: "Based in South Africa. We understand your market." },
-  { title: " Ongoing Support", description: "We are here even after your project launches." },
+  { title: "Ongoing Support", description: "We are here even after your project launches." },
 ];
 
 export default function Home() {
@@ -140,6 +140,43 @@ export default function Home() {
               <ServiceCard {...service} />
             </Reveal>
           ))}
+        </div>
+      </Section>
+
+      <Section className="bg-white pt-0">
+        <Reveal>
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Latest Updates</p>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Fresh from the Lab</h2>
+            </div>
+            <div className="flex gap-3">
+              <Button asChild variant="secondary" className="hidden sm:inline-flex">
+                <Link href="/blog">View Blog</Link>
+              </Button>
+              <Button asChild variant="secondary" className="hidden sm:inline-flex">
+                <Link href="/news">View News</Link>
+              </Button>
+            </div>
+          </div>
+        </Reveal>
+        <div className="grid gap-6 md:grid-cols-2">
+          <article className="rounded-xl border bg-surface p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Latest Blog</p>
+            <h3 className="mt-2 text-xl font-semibold">{techBlogPosts[0].title}</h3>
+            <p className="mt-3 text-sm text-muted">{techBlogPosts[0].excerpt}</p>
+            <Link href={`/blog/${techBlogPosts[0].slug}`} className="mt-4 inline-block text-sm font-semibold text-[#111111] hover:text-accent">
+              Read Article
+            </Link>
+          </article>
+          <article className="rounded-xl border bg-surface p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Latest News</p>
+            <h3 className="mt-2 text-xl font-semibold">{newsUpdates[0].title}</h3>
+            <p className="mt-3 text-sm text-muted">{newsUpdates[0].excerpt}</p>
+            <Link href={`/news/${newsUpdates[0].slug}`} className="mt-4 inline-block text-sm font-semibold text-[#111111] hover:text-accent">
+              Read Update
+            </Link>
+          </article>
         </div>
       </Section>
 
