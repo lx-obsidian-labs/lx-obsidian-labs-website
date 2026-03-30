@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { StructuredData } from "@/components/structured-data";
 import { AdsenseUnit } from "@/components/ads/adsense-unit";
-import { Cpu, ArrowRight } from "lucide-react";
+import { Cpu, ArrowRight, Zap } from "lucide-react";
 
 const ContactForm = dynamic(
   () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
@@ -37,6 +37,49 @@ export default function Home() {
 
       <Section className="bg-white py-0">
         <AdsenseUnit slot={homeAdSlot} className="min-h-[120px]" format="fluid" layoutKey="-fb+5w+4e-db+86" />
+      </Section>
+
+      <Section className="bg-amber-50">
+        <Reveal>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-amber-600">
+                <Zap className="h-4 w-4" />
+                Limited Time
+              </p>
+              <h2 className="mt-2 text-3xl font-bold md:text-4xl">Flash Deals & Offers</h2>
+            </div>
+            <Button asChild variant="secondary" className="hidden sm:inline-flex">
+              <Link href="/offers">View All Offers</Link>
+            </Button>
+          </div>
+        </Reveal>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <article className="rounded-xl border border-amber-300 bg-white p-4">
+            <p className="text-xs font-semibold uppercase text-amber-600">BIMAX Launch</p>
+            <p className="mt-1 font-bold">80% OFF - $2</p>
+            <p className="mt-1 text-sm text-muted">Beautiful YouTube Player</p>
+            <Link href="/apps" className="mt-3 inline-block text-sm font-semibold text-amber-600 hover:underline">
+              Get Deal →
+            </Link>
+          </article>
+          <article className="rounded-xl border border-amber-300 bg-white p-4">
+            <p className="text-xs font-semibold uppercase text-amber-600">Design Bundle</p>
+            <p className="mt-1 font-bold">Free Logo Consultation</p>
+            <p className="mt-1 text-sm text-muted">R2,000 Value</p>
+            <Link href="/services/design-order" className="mt-3 inline-block text-sm font-semibold text-amber-600 hover:underline">
+              Claim Offer →
+            </Link>
+          </article>
+          <article className="rounded-xl border border-amber-300 bg-white p-4">
+            <p className="text-xs font-semibold uppercase text-amber-600">SEO Audit</p>
+            <p className="mt-1 font-bold">FREE with Web Project</p>
+            <p className="mt-1 text-sm text-muted">R3,000 Value</p>
+            <Link href="/services/web-design" className="mt-3 inline-block text-sm font-semibold text-amber-600 hover:underline">
+              Learn More →
+            </Link>
+          </article>
+        </div>
       </Section>
 
       <Section className="bg-white">
