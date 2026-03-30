@@ -1,9 +1,14 @@
-import { Prisma, type User } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { readSessionFromRequest } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { getClientIp } from "@/lib/rate-limit";
+
+type CreatorUser = {
+  id: string;
+  email: string;
+  name: string | null;
+};
 
 export function requireCreatorDatabase() {
   if (!process.env.DATABASE_URL) {
@@ -17,14 +22,16 @@ export function requireCreatorDatabase() {
 }
 
 export function creatorErrorResponse(error: unknown, fallbackMessage: string) {
-  if (error instanceof Prisma.PrismaClientInitializationError) {
+  const prismaError = error as { name?: string; code?: string } | null;
+
+  if (prismaError?.name === "PrismaClientInitializationError") {
     return NextResponse.json(
       { error: "Creator database connection failed. Check DATABASE_URL and database availability." },
       { status: 503 },
     );
   }
 
-  if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
+  if (prismaError?.code === "P2021") {
     return NextResponse.json(
       { error: "Creator database schema is not ready. Run Prisma migrations/db push." },
       { status: 503 },
@@ -34,7 +41,7 @@ export function creatorErrorResponse(error: unknown, fallbackMessage: string) {
   return NextResponse.json({ error: fallbackMessage }, { status: 500 });
 }
 
-export async function requireCreatorUser(request: Request): Promise<{ user: User; response: null } | { user: null; response: NextResponse }> {
+export async function requireCreatorUser(request: Request): Promise<{ user: CreatorUser; response: null } | { user: null; response: NextResponse }> {
   const enforceAuth = process.env.CREATOR_REQUIRE_AUTH === "true";
   const session = readSessionFromRequest(request);
 
