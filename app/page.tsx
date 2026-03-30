@@ -1,5 +1,4 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { Metadata } from "next";
 import { Hero } from "@/components/home/hero";
 import { Section } from "@/components/layout/section";
@@ -7,13 +6,8 @@ import { ServiceCard } from "@/components/cards/service-card";
 import { PortfolioCard } from "@/components/cards/portfolio-card";
 import { services, portfolioProjects, techBlogPosts, newsUpdates } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Reveal } from "@/components/motion/reveal";
 import { StructuredData } from "@/components/structured-data";
 import { Cpu, ArrowRight, Zap, CheckCircle, Users, Clock, Award } from "lucide-react";
-
-const ContactForm = dynamic(
-  () => import("@/components/forms/contact-form").then((mod) => mod.ContactForm),
-);
 
 export const metadata: Metadata = {
   title: "BIMAX Audio Player $2 | Software Development & Design Services | LX Obsidian Labs",
@@ -55,37 +49,33 @@ export default function Home() {
 
       <Section className="bg-surface">
         <div className="grid gap-6 md:grid-cols-3">
-          {stats.map((stat, i) => (
-            <Reveal key={stat.label} delay={i * 0.1}>
-              <div className="flex items-center gap-4 rounded-xl border bg-white p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
-                  <stat.icon className="h-6 w-6 text-accent" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-sm text-muted">{stat.label}</p>
-                </div>
+          {stats.map((stat) => (
+            <div key={stat.label} className="flex items-center gap-4 rounded-xl border bg-white p-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
+                <stat.icon className="h-6 w-6 text-accent" />
               </div>
-            </Reveal>
+              <div>
+                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-sm text-muted">{stat.label}</p>
+              </div>
+            </div>
           ))}
         </div>
       </Section>
 
       <Section className="bg-amber-50">
-        <Reveal>
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-amber-600">
-                <Zap className="h-4 w-4" />
-                Limited Time
-              </p>
-              <h2 className="mt-2 text-3xl font-bold md:text-4xl">Flash Deals & Offers</h2>
-            </div>
-            <Button asChild className="hidden sm:inline-flex bg-amber-500 hover:bg-amber-600">
-              <Link href="/offers">View All Offers</Link>
-            </Button>
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-amber-600">
+              <Zap className="h-4 w-4" />
+              Limited Time
+            </p>
+            <h2 className="mt-2 text-3xl font-bold md:text-4xl">Flash Deals & Offers</h2>
           </div>
-        </Reveal>
+          <Button asChild className="hidden sm:inline-flex bg-amber-500 hover:bg-amber-600">
+            <Link href="/offers">View All Offers</Link>
+          </Button>
+        </div>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <article className="rounded-xl border border-amber-300 bg-white p-5">
             <div className="flex items-center justify-between">
@@ -124,43 +114,39 @@ export default function Home() {
       </Section>
 
       <Section className="bg-white">
-        <Reveal>
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Services</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">What We Do</h2>
-            </div>
-            <Button asChild variant="secondary" className="hidden sm:inline-flex">
-              <Link href="/services">All Services</Link>
-            </Button>
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Services</p>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">What We Do</h2>
           </div>
-        </Reveal>
+          <Button asChild variant="secondary" className="hidden sm:inline-flex">
+            <Link href="/services">All Services</Link>
+          </Button>
+        </div>
         <div className="grid gap-6 md:grid-cols-3">
           {services.map((service, index) => (
-            <Reveal key={service.title} delay={index * 0.08}>
+            <div key={service.title} style={{ animationDelay: `${index * 80}ms` }}>
               <ServiceCard {...service} />
-            </Reveal>
+            </div>
           ))}
         </div>
       </Section>
 
       <Section className="bg-white pt-0">
-        <Reveal>
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Latest Updates</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Fresh from the Lab</h2>
-            </div>
-            <div className="flex gap-3">
-              <Button asChild variant="secondary" className="hidden sm:inline-flex">
-                <Link href="/blog">View Blog</Link>
-              </Button>
-              <Button asChild variant="secondary" className="hidden sm:inline-flex">
-                <Link href="/news">View News</Link>
-              </Button>
-            </div>
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Latest Updates</p>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Fresh from the Lab</h2>
           </div>
-        </Reveal>
+          <div className="flex gap-3">
+            <Button asChild variant="secondary" className="hidden sm:inline-flex">
+              <Link href="/blog">View Blog</Link>
+            </Button>
+            <Button asChild variant="secondary" className="hidden sm:inline-flex">
+              <Link href="/news">View News</Link>
+            </Button>
+          </div>
+        </div>
         <div className="grid gap-6 md:grid-cols-2">
           <article className="rounded-xl border bg-surface p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Latest Blog</p>
@@ -182,116 +168,106 @@ export default function Home() {
       </Section>
 
       <Section className="bg-zinc-50">
-        <Reveal>
-          <div className="mb-8 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Why Choose Us</p>
-            <h2 className="mt-2 text-3xl font-bold md:text-4xl">Reasons to Work With Us</h2>
-          </div>
-        </Reveal>
+        <div className="mb-8 text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Why Choose Us</p>
+          <h2 className="mt-2 text-3xl font-bold md:text-4xl">Reasons to Work With Us</h2>
+        </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {whyChooseUs.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.1}>
-              <div className="rounded-xl border bg-white p-5 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-                  <CheckCircle className="h-5 w-5 text-emerald-600" />
-                </div>
-                <h3 className="mt-3 font-bold">{item.title}</h3>
-                <p className="mt-1 text-sm text-muted">{item.description}</p>
+          {whyChooseUs.map((item) => (
+            <div key={item.title} className="rounded-xl border bg-white p-5 text-center">
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                <CheckCircle className="h-5 w-5 text-emerald-600" />
               </div>
-            </Reveal>
+              <h3 className="mt-3 font-bold">{item.title}</h3>
+              <p className="mt-1 text-sm text-muted">{item.description}</p>
+            </div>
           ))}
         </div>
       </Section>
 
       <Section className="bg-surface">
-        <Reveal>
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Portfolio</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Our Recent Work</h2>
-            </div>
-            <Button asChild variant="secondary" className="hidden sm:inline-flex">
-              <Link href="/portfolio">View All</Link>
-            </Button>
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Portfolio</p>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Our Recent Work</h2>
           </div>
-        </Reveal>
+          <Button asChild variant="secondary" className="hidden sm:inline-flex">
+            <Link href="/portfolio">View All</Link>
+          </Button>
+        </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {portfolioProjects.slice(0, 3).map((project, index) => (
-            <Reveal key={project.title} delay={index * 0.08}>
+            <div key={project.title} style={{ animationDelay: `${index * 80}ms` }}>
               <PortfolioCard {...project} />
-            </Reveal>
+            </div>
           ))}
         </div>
       </Section>
 
       <Section className="bg-emerald-900 py-16 text-white">
-        <Reveal>
-          <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-400">
-                <Cpu className="h-5 w-5" />
-                Robotics Vision
-              </p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">Building the Future of Robotics</h2>
-              <p className="mt-4 text-emerald-200">
-                Nathan Vilane&apos;s passion project. We&apos;re working toward applied robotics by 2028. 
-                Support the research and development of cutting-edge robotics technology.
-              </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
-                  <Link href="/robotics">
-                    Support the Vision
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="secondary"
-                  className="w-full border-emerald-400 text-emerald-100 hover:bg-emerald-800 sm:w-auto"
-                >
-                  <Link href="/robotics" className="inline-flex items-center gap-2">
-                    Learn More <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-800/30 p-6">
-              <p className="text-sm font-semibold text-emerald-300">Why Support?</p>
-              <ul className="mt-4 space-y-3 text-sm text-emerald-100">
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span>
-                  Fund hardware and sensors for prototype development
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span>
-                  Support OpenCV testing and computer vision research
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span>
-                  Help bring autonomous robotics to real-world applications
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-400">✓</span>
-                  Every donation accelerates our timeline
-                </li>
-              </ul>
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-400">
+              <Cpu className="h-5 w-5" />
+              Robotics Vision
+            </p>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Building the Future of Robotics</h2>
+            <p className="mt-4 text-emerald-200">
+              Nathan Vilane&apos;s passion project. We&apos;re working toward applied robotics by 2028.
+              Support the research and development of cutting-edge robotics technology.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg" className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
+                <Link href="/robotics">
+                  Support the Vision
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="secondary"
+                className="w-full border-emerald-400 text-emerald-100 hover:bg-emerald-800 sm:w-auto"
+              >
+                <Link href="/robotics" className="inline-flex items-center gap-2">
+                  Learn More <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </div>
-        </Reveal>
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-800/30 p-6">
+            <p className="text-sm font-semibold text-emerald-300">Why Support?</p>
+            <ul className="mt-4 space-y-3 text-sm text-emerald-100">
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                Fund hardware and sensors for prototype development
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                Support OpenCV testing and computer vision research
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                Help bring autonomous robotics to real-world applications
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                Every donation accelerates our timeline
+              </li>
+            </ul>
+          </div>
+        </div>
       </Section>
 
       <Section className="bg-white">
-        <Reveal>
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Directory</p>
-              <h2 className="mt-3 text-3xl font-bold md:text-4xl">South African Businesses</h2>
-            </div>
-            <Button asChild variant="secondary" className="hidden sm:inline-flex">
-              <Link href="/directory">Browse Directory</Link>
-            </Button>
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Directory</p>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">South African Businesses</h2>
           </div>
-        </Reveal>
+          <Button asChild variant="secondary" className="hidden sm:inline-flex">
+            <Link href="/directory">Browse Directory</Link>
+          </Button>
+        </div>
         <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center">
           <p className="text-lg font-semibold">Get Your Business Listed</p>
           <p className="mt-2 text-muted">Reach more customers with a directory listing from R200/month</p>
@@ -302,15 +278,14 @@ export default function Home() {
       </Section>
 
       <Section id="contact" className="bg-zinc-50">
-        <Reveal>
-          <div className="mb-8 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Contact</p>
-            <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to Start?</h2>
-            <p className="mt-3 text-muted">Tell us what you need. We will get back to you within 24 hours.</p>
-          </div>
-        </Reveal>
-        <div className="mx-auto max-w-2xl">
-          <ContactForm />
+        <div className="mb-8 text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Contact</p>
+          <h2 className="mt-3 text-3xl font-bold md:text-4xl">Ready to Start?</h2>
+          <p className="mt-3 text-muted">Get a response within 24 hours.</p>
+        </div>
+        <div className="mx-auto grid max-w-2xl gap-3 sm:grid-cols-2">
+          <Link href="/contact" className="rounded-md bg-accent px-4 py-3 text-center text-sm font-semibold text-white">Open Project Brief</Link>
+          <a href="https://wa.me/27762982399" target="_blank" rel="noreferrer" className="rounded-md border border-zinc-300 bg-white px-4 py-3 text-center text-sm font-semibold text-zinc-700">WhatsApp Us</a>
         </div>
       </Section>
     </>
