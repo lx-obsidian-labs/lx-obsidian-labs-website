@@ -10,7 +10,7 @@ export function Footer() {
       <Container className="grid gap-8 lg:grid-cols-4">
         <div>
           <Image
-            src="/brand/lx-logo-light.svg"
+            src="/brand/lx-logo-dark.svg"
             alt="LX Obsidian Labs"
             width={210}
             height={42}
