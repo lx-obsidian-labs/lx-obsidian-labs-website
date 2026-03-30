@@ -9,7 +9,6 @@ import { services, portfolioProjects, techBlogPosts, newsUpdates } from "@/lib/d
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { StructuredData } from "@/components/structured-data";
-import { AdsenseUnit } from "@/components/ads/adsense-unit";
 import { Cpu, ArrowRight, Zap, CheckCircle, Users, Clock, Award } from "lucide-react";
 
 const ContactForm = dynamic(
@@ -41,15 +40,17 @@ const whyChooseUs = [
 ];
 
 export default function Home() {
-  const homeAdSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME || "7941464222";
-
   return (
     <>
       <StructuredData />
       <Hero />
 
-      <Section className="bg-white py-0">
-        <AdsenseUnit slot={homeAdSlot} className="min-h-[120px]" format="fluid" layoutKey="-fb+5w+4e-db+86" />
+      <Section className="bg-white pt-0">
+        <div className="grid gap-3 rounded-xl border bg-surface p-4 sm:grid-cols-3">
+          <Link href="/apps" className="rounded-lg bg-accent px-4 py-3 text-center text-sm font-semibold text-white">Buy BIMAX ($2)</Link>
+          <Link href="/offers" className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-700">See Flash Offers</Link>
+          <Link href="/contact" className="rounded-lg border border-zinc-300 bg-white px-4 py-3 text-center text-sm font-semibold text-zinc-700">Get Project Quote</Link>
+        </div>
       </Section>
 
       <Section className="bg-surface">

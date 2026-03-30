@@ -77,9 +77,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  other: {
-    "google-adsense-account": "ca-pub-8968817915668565",
-  },
 };
 
 export default function RootLayout({
@@ -111,15 +108,6 @@ export default function RootLayout({
             </Script>
           </>
         ) : null}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8968817915668565"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-        <Script id="adsense-init" strategy="afterInteractive">
-          {`(adsbygoogle = window.adsbygoogle || []).push({ google_ad_client: "ca-pub-8968817915668565", enable_page_level_ads: true });`}
-        </Script>
         <Script
           id="org-jsonld"
           type="application/ld+json"
