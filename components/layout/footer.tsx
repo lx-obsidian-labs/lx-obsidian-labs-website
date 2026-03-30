@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/layout/container";
 
 const year = new Date().getFullYear();
@@ -8,7 +9,13 @@ export function Footer() {
     <footer className="border-t bg-[#0a0a0a] py-12 text-white">
       <Container className="grid gap-8 lg:grid-cols-4">
         <div>
-          <p className="text-lg font-bold">LX Obsidian Labs</p>
+          <Image
+            src="/brand/lx-logo-light.svg"
+            alt="LX Obsidian Labs"
+            width={210}
+            height={42}
+            className="h-10 w-auto"
+          />
           <p className="mt-3 max-w-sm text-sm text-zinc-300">
             Software, design, and robotics from Nathan Vilane.
           </p>

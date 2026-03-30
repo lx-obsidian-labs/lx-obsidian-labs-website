@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,8 +18,15 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-white/92 shadow-[0_6px_22px_-18px_rgba(15,23,42,0.45)] backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
-        <Link href="/" className="text-base font-extrabold tracking-wide text-[#111111]" aria-label="LX Obsidian Labs Home">
-          LX <span className="text-accent">Obsidian</span> Labs
+        <Link href="/" className="inline-flex items-center" aria-label="LX Obsidian Labs Home">
+          <Image
+            src="/brand/lx-logo-dark.svg"
+            alt="LX Obsidian Labs"
+            width={186}
+            height={38}
+            className="h-9 w-auto"
+            priority
+          />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
