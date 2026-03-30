@@ -77,9 +77,12 @@ export default function OffersPage() {
           <Zap className="h-5 w-5" />
           <span>Offers update regularly - check back often!</span>
         </div>
+        <Link href="/apps" className="mt-5 inline-flex rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-black sm:hidden">
+          Get BIMAX Deal
+        </Link>
       </Section>
 
-      <Section className="bg-white pt-0">
+      <Section className="bg-white pb-20 pt-0 lg:pb-0">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {offers.map((offer) => (
             <article
@@ -139,6 +142,12 @@ export default function OffersPage() {
           </Link>
         </div>
       </Section>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-amber-200 bg-amber-50 p-3 lg:hidden">
+        <Link href="/apps" className="block rounded-md bg-amber-500 px-4 py-3 text-center text-sm font-semibold text-black">
+          Claim BIMAX Launch Offer - $2
+        </Link>
+      </div>
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Music, Wifi, Search, Clock, Palette, Monitor, FileText, Loader2, CheckCircle } from "lucide-react";
+import { Download, Music, Wifi, Search, Clock, Palette, Monitor, FileText, Loader2 } from "lucide-react";
 import { track } from "@/lib/analytics";
 
 const apps = [
@@ -45,7 +45,6 @@ const apps = [
 export function DownloadSection() {
   const app = apps[0];
   const [loading, setLoading] = useState(false);
-  const [paid] = useState(false);
   const [error, setError] = useState("");
 
   const handlePayment = async () => {
@@ -83,15 +82,11 @@ export function DownloadSection() {
     }
   };
 
-  const handleDownload = () => {
-    track("bimax_download");
-    window.location.href = app.file;
-  };
-
   return (
-    <div className="grid gap-12 lg:grid-cols-2">
+    <>
+      <div className="grid gap-12 pb-20 lg:grid-cols-2 lg:pb-0">
       <div>
-        <div className="sticky top-24">
+        <div className="lg:sticky lg:top-24">
           <div className="rounded-2xl border bg-gradient-to-br from-zinc-900 to-black p-8 text-white">
             <h2 className="text-2xl font-bold">{app.name}</h2>
             <p className="mt-2 text-zinc-400">{app.description}</p>
@@ -103,24 +98,14 @@ export function DownloadSection() {
 
             {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
 
-            {paid ? (
-              <button
-                onClick={handleDownload}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-green-500 px-6 py-3 font-semibold text-white transition-transform hover:scale-105"
-              >
-                <CheckCircle className="h-5 w-5" />
-                Download Now
-              </button>
-            ) : (
-              <button
-                onClick={handlePayment}
-                disabled={loading}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3 font-semibold text-white transition-transform hover:scale-105 disabled:opacity-60"
-              >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
-                Pay & Download
-              </button>
-            )}
+            <button
+              onClick={handlePayment}
+              disabled={loading}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3 font-semibold text-white transition-transform hover:scale-105 disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
+              Pay $2 & Download
+            </button>
 
             <p className="mt-3 text-center text-xs text-zinc-400">
               Secure payment via PayFast. After payment, you will be redirected to download.
@@ -201,6 +186,18 @@ export function DownloadSection() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-800 bg-[#0f172a] p-3 lg:hidden">
+        <button
+          onClick={handlePayment}
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          Pay $2 & Download BIMAX
+        </button>
+      </div>
+    </>
   );
 }

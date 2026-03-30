@@ -114,24 +114,24 @@ export default function DirectoryPage() {
         </p>
       </Section>
 
-      <Section className="bg-white pt-0">
+      <Section className="bg-white pb-20 pt-0 lg:pb-0">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-2">
-            <select className="rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+          <div className="grid w-full gap-2 sm:flex sm:w-auto">
+            <select className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm sm:w-auto">
               <option>All Categories</option>
               <option>IT Services</option>
               <option>Graphic Design</option>
               <option>Construction</option>
               <option>Financial Services</option>
             </select>
-            <select className="rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+            <select className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm sm:w-auto">
               <option>All Locations</option>
               <option>Gauteng</option>
               <option>Western Cape</option>
               <option>KwaZulu-Natal</option>
             </select>
           </div>
-          <Link href="/contact" className="inline-flex items-center gap-2 rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent">
+          <Link href="/contact" className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-accent px-4 py-2 text-sm font-semibold text-accent sm:w-auto">
             <Plus className="h-4 w-4" />
             Add Your Business
           </Link>
@@ -214,6 +214,12 @@ export default function DirectoryPage() {
           ))}
         </div>
       </Section>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white p-3 lg:hidden">
+        <Link href="/contact" className="block rounded-md bg-accent px-4 py-3 text-center text-sm font-semibold text-white">
+          List My Business From R200/month
+        </Link>
+      </div>
     </>
   );
 }
