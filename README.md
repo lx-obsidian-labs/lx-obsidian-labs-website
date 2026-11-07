@@ -1,5 +1,7 @@
 # LX Obsidian Labs Website
 
+**Engineering verification:** [Documentation verification](DOCUMENTATION_VERIFICATION.md). This guide separates documented functionality from independently verified test and deployment evidence.
+
 Modern, conversion-focused website built with Next.js App Router, Tailwind CSS, shadcn/ui components, Framer Motion, and Lucide icons.
 
 ## Tech Stack
